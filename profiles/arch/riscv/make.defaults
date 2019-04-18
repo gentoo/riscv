@@ -1,0 +1,21 @@
+# Copyright 2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+# Main RISC-V profile
+
+ARCH="riscv"
+ACCEPT_KEYWORDS="riscv ~riscv"
+
+CHOST="riscv64-unknown-linux-gnu"
+
+# This is not a complete profile. The following stuff is
+# defined in subdirs:
+# CFLAGS
+# CXXFLAGS
+# FFLAGS
+# FCFLAGS
+# ABI
+# DEFAULT_ABI
+# MULTILIB_ABIS
+# CHOST_riscv
+# LIBDIR_riscv
