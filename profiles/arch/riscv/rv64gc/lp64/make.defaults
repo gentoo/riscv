@@ -3,6 +3,11 @@
 
 # RISC-V rv64gc/lp64 no-multilib profile
 
+CFLAGS="-O2 -pipe -march=rv64gc -mabi=lp64"
+CXXFLAGS="${CFLAGS}"
+FFLAGS="${CFLAGS}"
+FCFLAGS="${CFLAGS}"
+
 # We have only one ABI
 MULTILIB_ABIS="lp64"
 
