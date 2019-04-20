@@ -8,6 +8,9 @@ ACCEPT_KEYWORDS="riscv ~riscv"
 
 CHOST="riscv64-unknown-linux-gnu"
 
+# Since many people will want to test this in qemu...
+FEATURES="-pid-sandbox -network-sandbox -ipc-sandbox"
+
 # This is not a complete profile. The following stuff is
 # defined in subdirs:
 # CFLAGS
