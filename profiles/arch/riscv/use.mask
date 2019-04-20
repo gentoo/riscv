@@ -1,2 +1,5 @@
 # The required library has not been ported to riscv yet.
 seccomp
+
+# Python 2 has a lot of trouble with the two-level libdir.
+python_targets_python2_7
