@@ -26,6 +26,11 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/gpgrt.h
 )
 
+PATCHES=(
+	"${FILESDIR}/${P}-gawk5.patch"
+	"${FILESDIR}/${P}-gawk5-2.patch"
+)
+
 src_prepare() {
 	default
 	elibtoolize
