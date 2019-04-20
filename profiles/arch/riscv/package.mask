@@ -1,0 +1,2 @@
+# Doesnt work properly with the two-level libdirs
+dev-lang/python:2.7
