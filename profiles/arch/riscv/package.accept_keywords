@@ -1,0 +1,2 @@
+# we need python patched for riscv
+dev-lang/python -amd64 -~amd64
