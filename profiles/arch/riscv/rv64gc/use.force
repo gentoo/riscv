@@ -1,0 +1,2 @@
+# Force the flag corresponding to the default ABI.
+abi_riscv_lp64d
