@@ -1513,6 +1513,11 @@ gcc_do_filter_flags() {
 	# dont want to funk ourselves
 	filter-flags '-mabi*' -m31 -m32 -m64
 
+	# on riscv, only specific combinations of march and mabi work... so we need
+	# to strip both and trust the compiler to do the right thing, otherwise
+	# multilib build fails
+	[[ $(tc-arch) == riscv* ]] && filter-flags '-march*'
+
 	filter-flags -frecord-gcc-switches # 490738
 	filter-flags -mno-rtm -mno-htm # 506202
 
