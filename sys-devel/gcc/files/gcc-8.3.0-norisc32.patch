@@ -1,0 +1,14 @@
+diff -ruN gcc-8.3.0.orig/gcc/config/riscv/t-linux-multilib gcc-8.3.0/gcc/config/riscv/t-linux-multilib
+--- gcc-8.3.0.orig/gcc/config/riscv/t-linux-multilib	2017-02-06 21:38:37.000000000 -0000
++++ gcc-8.3.0/gcc/config/riscv/t-linux-multilib	2019-04-28 12:16:32.000000000 -0000
+@@ -20,9 +20,7 @@
+ ilp32d \
+ lp64 \
+ lp64d
+-MULTILIB_REQUIRED = march=rv32imac/mabi=ilp32 \
+-march=rv32imafdc/mabi=ilp32d \
+-march=rv64imac/mabi=lp64 \
++MULTILIB_REQUIRED = march=rv64imac/mabi=lp64 \
+ march=rv64imafdc/mabi=lp64d
+ MULTILIB_REUSE = march.rv32imac/mabi.ilp32=march.rv32ima/mabi.ilp32 \
+ march.rv32imac/mabi.ilp32=march.rv32imaf/mabi.ilp32 \
