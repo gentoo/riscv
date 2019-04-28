@@ -391,7 +391,7 @@ multilib_env() {
 			export CTARGET_lp64d=${CTARGET}
 			export LIBDIR_lp64d="lib64/lp64d"
 
-			export CFLAGS_lp64=${CFLAGS_lp64d--mabi=lp64}
+			export CFLAGS_lp64=${CFLAGS_lp64--mabi=lp64}
 			export CHOST_lp64=${CTARGET}
 			export CTARGET_lp64=${CTARGET}
 			export LIBDIR_lp64="lib64/lp64"
