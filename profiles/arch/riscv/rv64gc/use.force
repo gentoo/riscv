@@ -1,2 +1,6 @@
 # Force the flag corresponding to the default ABI.
 abi_riscv_lp64d
+
+# Right now we have only one Python available
+python_targets_python3_7
+python_single_target_python3_7
