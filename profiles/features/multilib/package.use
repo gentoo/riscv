@@ -1,3 +1,0 @@
-# Enable all ABIs by default so we can protect any non-native binaries that
-# might be executed.
-sys-apps/sandbox abi_riscv_lp64d abi_riscv_lp64

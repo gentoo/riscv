@@ -1,6 +1,0 @@
-# Copyright 2019 Gentoo Authors
-# Distributed under the terms of the GNU General Public License v2
-
-# RISC-V specific variables
-USE_EXPAND="ABI_RISCV"
-USE_EXPAND_HIDDEN="ABI_RISCV"

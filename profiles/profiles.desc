@@ -1,5 +1,0 @@
-# RISC-V Profiles
-# @MAINTAINER: riscv@gentoo.org
-riscv	default/linux/riscv/17.0/rv64gc		exp
-riscv	default/linux/riscv/17.0/rv64gc/lp64	exp
-riscv	default/linux/riscv/17.0/rv64gc/lp64d	exp

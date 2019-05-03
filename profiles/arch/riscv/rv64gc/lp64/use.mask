@@ -1,5 +1,0 @@
-# Mask multilib, since we cannot use it.
-multilib
-
-# Mask the multilib flags back for non-multilib profile.
-abi_riscv_lp64d

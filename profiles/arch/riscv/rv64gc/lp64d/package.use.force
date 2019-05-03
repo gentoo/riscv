@@ -1,2 +1,0 @@
-# Undo multilib forcing.
-sys-apps/sandbox -abi_riscv_lp64

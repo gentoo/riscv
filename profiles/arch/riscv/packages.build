@@ -1,5 +1,0 @@
-# For now we add the x86-64 qemu-riscv64 static binary to all
-# stages. This makes life somewhat simpler for working without
-# real hardware.
-
-app-emulation/qemu-riscv64-bin

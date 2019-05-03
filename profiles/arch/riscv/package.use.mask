@@ -1,5 +1,0 @@
-
-# This doesn't work for (any) riscv yet.
-dev-libs/libpcre2 jit
-dev-libs/libpcre jit
-dev-vcs/git pcre-jit
