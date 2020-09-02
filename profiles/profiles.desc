@@ -1,0 +1,3 @@
+riscv	default/linux/riscv/17.0/rv64gc			dev
+riscv	default/linux/riscv/17.0/rv64gc/lp64d		stable
+riscv	default/linux/riscv/17.0/rv64gc/lp64		stable
