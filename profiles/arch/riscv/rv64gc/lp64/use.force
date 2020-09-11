@@ -1,5 +1,0 @@
-# Un-force the original multilib default-abi flag
--abi_riscv_lp64d
-
-# Force the abi of this profile here
-abi_riscv_lp64
