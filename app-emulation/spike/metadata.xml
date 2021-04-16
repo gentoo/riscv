@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<longdescription>
+		Spike, the RISC-V ISA Simulator, implements a functional model of
+		one or more RISC-V harts. It is named after the golden spike used to
+		celebrate the completion of the US transcontinental railway.
+	</longdescription>
+	<maintainer type="person">
+		<email>dlan@gentoo.org</email>
+		<name>Yixun Lan</name>
+	</maintainer>
+	<stabilize-allarches/>
+	<upstream>
+		<remote-id type="github">riscv/riscv-isa-sim</remote-id>
+	</upstream>
+</pkgmetadata>
