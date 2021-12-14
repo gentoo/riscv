@@ -17,6 +17,7 @@ PATCHSET="3"
 PATCHSET_NAME="chromium-$(ver_cut 1)-patchset-${PATCHSET}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}.tar.xz
 	https://github.com/stha09/chromium-patches/releases/download/${PATCHSET_NAME}/${PATCHSET_NAME}.tar.xz"
+SRC_URI+=" https://dev.gentoo.org/~dlan/distfiles/${CATEGORY}/${PN}/chromium-$(ver_cut 1)-extra-patchset-0.tar.xz"
 
 LICENSE="BSD"
 SLOT="0/dev"
@@ -235,6 +236,7 @@ src_prepare() {
 		"${FILESDIR}/chromium-glibc-2.34.patch"
 		"${FILESDIR}/chromium-use-oauth2-client-switches-as-default.patch"
 		"${FILESDIR}/chromium-shim_headers.patch"
+		"${WORKDIR}/extra-patches"
 	)
 
 	default
@@ -507,7 +509,7 @@ src_prepare() {
 			keeplibs+=( third_party/icu )
 		fi
 	fi
-	if use arm64 || use ppc64 ; then
+	if use arm64 || use ppc64 || use riscv; then
 		keeplibs+=( third_party/swiftshader/third_party/llvm-10.0 )
 	fi
 	# we need to generate ppc64 stuff because upstream does not ship it yet
@@ -710,6 +712,9 @@ src_configure() {
 	elif [[ $myarch = ppc64 ]] ; then
 		myconf_gn+=" target_cpu=\"ppc64\""
 		ffmpeg_target_arch=ppc64
+	elif [[ $myarch = riscv ]] ; then
+		myconf_gn+=" target_cpu=\"riscv64\""
+		ffmpeg_target_arch=riscv64
 	else
 		die "Failed to determine target arch, got '$myarch'."
 	fi
