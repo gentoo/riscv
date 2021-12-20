@@ -3,9 +3,10 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-91esr-patches-03.tar.xz"
+FIREFOX_RISCV_PATCHSET="firefox-94-patches-riscv.tar.xz"
+FIREFOX_PATCHSET="firefox-94-patches-80.tar.xz"
 
-LLVM_MAX_SLOT=13
+LLVM_MAX_SLOT=12
 
 PYTHON_COMPAT=( python3_{7..10} )
 PYTHON_REQ_USE="ncurses,sqlite,ssl"
@@ -14,7 +15,7 @@ WANT_AUTOCONF="2.1"
 
 VIRTUALX_REQUIRED="pgo"
 
-MOZ_ESR=yes
+MOZ_ESR=
 
 MOZ_PV=${PV}
 MOZ_PV_SUFFIX=
@@ -48,7 +49,8 @@ if [[ ${PV} == *_rc* ]] ; then
 fi
 
 PATCH_URIS=(
-	https://dev.gentoo.org/~{polynomial-c,whissi}/mozilla/patchsets/${FIREFOX_PATCHSET}
+	https://dev.gentoo.org/~dlan/mozilla/patchsets/${FIREFOX_RISCV_PATCHSET}
+	https://dev.gentoo.org/~{axs,polynomial-c,whissi,dlan}/mozilla/patchsets/${FIREFOX_PATCHSET}
 )
 
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
@@ -57,27 +59,17 @@ SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}
 DESCRIPTION="Firefox Web Browser"
 HOMEPAGE="https://www.mozilla.com/firefox"
 
-KEYWORDS="amd64 arm64 ~ppc64 x86"
+KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 
-SLOT="0/esr$(ver_cut 1)"
+SLOT="0/$(ver_cut 1)"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
-
-IUSE="+clang cpu_flags_arm_neon dbus debug eme-free hardened hwaccel"
-IUSE+=" jack lto +openh264 pgo pulseaudio sndio selinux"
-IUSE+=" +system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent +system-libvpx system-png +system-webp"
-IUSE+=" wayland wifi"
-
-# Firefox-only IUSE
-IUSE+=" geckodriver"
-IUSE+=" +gmp-autoupdate"
-IUSE+=" screencast"
+IUSE="+clang cpu_flags_arm_neon dbus debug eme-free geckodriver +gmp-autoupdate
+	hardened hwaccel jack lto +openh264 pgo pulseaudio screencast sndio selinux
+	+system-av1 +system-harfbuzz +system-icu +system-jpeg +system-libevent
+	+system-libvpx +system-webp wayland wifi"
 
 REQUIRED_USE="debug? ( !system-av1 )
-	pgo? ( lto )
-	wifi? ( dbus )"
-
-# Firefox-only REQUIRED_USE flags
-REQUIRED_USE+=" screencast? ( wayland )"
+	screencast? ( wayland )"
 
 BDEPEND="${PYTHON_DEPS}
 	app-arch/unzip
@@ -87,14 +79,6 @@ BDEPEND="${PYTHON_DEPS}
 	virtual/pkgconfig
 	>=virtual/rust-1.51.0
 	|| (
-		(
-			sys-devel/clang:13
-			sys-devel/llvm:13
-			clang? (
-				=sys-devel/lld-13*
-				pgo? ( =sys-libs/compiler-rt-sanitizers-13*[profile] )
-			)
-		)
 		(
 			sys-devel/clang:12
 			sys-devel/llvm:12
@@ -111,12 +95,20 @@ BDEPEND="${PYTHON_DEPS}
 				pgo? ( =sys-libs/compiler-rt-sanitizers-11*[profile] )
 			)
 		)
+		(
+			sys-devel/clang:10
+			sys-devel/llvm:10
+			clang? (
+				=sys-devel/lld-10*
+				pgo? ( =sys-libs/compiler-rt-sanitizers-10*[profile] )
+			)
+		)
 	)
 	amd64? ( >=dev-lang/nasm-2.13 )
 	x86? ( >=dev-lang/nasm-2.13 )"
 
 CDEPEND="
-	>=dev-libs/nss-3.68
+	>=dev-libs/nss-3.69
 	>=dev-libs/nspr-4.32
 	dev-libs/atk
 	dev-libs/expat
@@ -124,6 +116,7 @@ CDEPEND="
 	>=x11-libs/gtk+-3.4.0:3[X]
 	x11-libs/gdk-pixbuf
 	>=x11-libs/pango-1.22.0
+	>=media-libs/libpng-1.6.35:0=[apng]
 	>=media-libs/mesa-10.2:*
 	media-libs/fontconfig
 	>=media-libs/freetype-2.4.10
@@ -135,13 +128,11 @@ CDEPEND="
 	>=dev-libs/libffi-3.0.10:=
 	media-video/ffmpeg
 	x11-libs/libX11
-	x11-libs/libxcb
 	x11-libs/libXcomposite
 	x11-libs/libXdamage
 	x11-libs/libXext
 	x11-libs/libXfixes
 	x11-libs/libXrender
-	x11-libs/libXt
 	dbus? (
 		sys-apps/dbus
 		dev-libs/dbus-glib
@@ -159,7 +150,6 @@ CDEPEND="
 	system-jpeg? ( >=media-libs/libjpeg-turbo-1.2.1 )
 	system-libevent? ( >=dev-libs/libevent-2.0:0=[threads] )
 	system-libvpx? ( >=media-libs/libvpx-1.8.2:0=[postproc] )
-	system-png? ( >=media-libs/libpng-1.6.35:0=[apng] )
 	system-webp? ( >=media-libs/libwebp-1.1.0:0= )
 	wifi? (
 		kernel_linux? (
@@ -184,8 +174,6 @@ RDEPEND="${CDEPEND}
 	selinux? ( sec-policy/selinux-mozilla )"
 
 DEPEND="${CDEPEND}
-	x11-libs/libICE
-	x11-libs/libSM
 	pulseaudio? (
 		|| (
 			media-sound/pulseaudio
@@ -228,49 +216,8 @@ llvm_check_deps() {
 }
 
 MOZ_LANGS=(
-	af ar ast be bg br ca cak cs cy da de dsb
-	el en-CA en-GB en-US es-AR es-ES et eu
-	fi fr fy-NL ga-IE gd gl he hr hsb hu
-	id is it ja ka kab kk ko lt lv ms nb-NO nl nn-NO
-	pa-IN pl pt-BR pt-PT rm ro ru
-	sk sl sq sr sv-SE th tr uk uz vi zh-CN zh-TW
+	en-US
 )
-
-# Firefox-only LANGS
-MOZ_LANGS+=( ach )
-MOZ_LANGS+=( an )
-MOZ_LANGS+=( az )
-MOZ_LANGS+=( bn )
-MOZ_LANGS+=( bs )
-MOZ_LANGS+=( ca-valencia )
-MOZ_LANGS+=( eo )
-MOZ_LANGS+=( es-CL )
-MOZ_LANGS+=( es-MX )
-MOZ_LANGS+=( fa )
-MOZ_LANGS+=( ff )
-MOZ_LANGS+=( gn )
-MOZ_LANGS+=( gu-IN )
-MOZ_LANGS+=( hi-IN )
-MOZ_LANGS+=( hy-AM )
-MOZ_LANGS+=( ia )
-MOZ_LANGS+=( km )
-MOZ_LANGS+=( kn )
-MOZ_LANGS+=( lij )
-MOZ_LANGS+=( mk )
-MOZ_LANGS+=( mr )
-MOZ_LANGS+=( my )
-MOZ_LANGS+=( ne-NP )
-MOZ_LANGS+=( oc )
-MOZ_LANGS+=( sco )
-MOZ_LANGS+=( si )
-MOZ_LANGS+=( son )
-MOZ_LANGS+=( szl )
-MOZ_LANGS+=( ta )
-MOZ_LANGS+=( te )
-MOZ_LANGS+=( tl )
-MOZ_LANGS+=( trs )
-MOZ_LANGS+=( ur )
-MOZ_LANGS+=( xh )
 
 mozilla_set_globals() {
 	# https://bugs.gentoo.org/587334
@@ -495,34 +442,6 @@ pkg_setup() {
 		# Build system is using /proc/self/oom_score_adj, bug #604394
 		addpredict /proc/self/oom_score_adj
 
-		if use pgo ; then
-			# Allow access to GPU during PGO run
-			local ati_cards mesa_cards nvidia_cards render_cards
-			shopt -s nullglob
-
-			ati_cards=$(echo -n /dev/ati/card* | sed 's/ /:/g')
-			if [[ -n "${ati_cards}" ]] ; then
-				addpredict "${ati_cards}"
-			fi
-
-			mesa_cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
-			if [[ -n "${mesa_cards}" ]] ; then
-				addpredict "${mesa_cards}"
-			fi
-
-			nvidia_cards=$(echo -n /dev/nvidia* | sed 's/ /:/g')
-			if [[ -n "${nvidia_cards}" ]] ; then
-				addpredict "${nvidia_cards}"
-			fi
-
-			render_cards=$(echo -n /dev/dri/renderD128* | sed 's/ /:/g')
-			if [[ -n "${render_cards}" ]] ; then
-				addpredict "${render_cards}"
-			fi
-
-			shopt -u nullglob
-		fi
-
 		if ! mountpoint -q /dev/shm ; then
 			# If /dev/shm is not available, configure is known to fail with
 			# a traceback report referencing /usr/lib/pythonN.N/multiprocessing/synchronize.py
@@ -672,9 +591,6 @@ src_configure() {
 	# python/mach/mach/mixin/process.py fails to detect SHELL
 	export SHELL="${EPREFIX}/bin/bash"
 
-	# Set state path
-	export MOZBUILD_STATE_PATH="${BUILD_DIR}"
-
 	# Set MOZCONFIG
 	export MOZCONFIG="${S}/.mozconfig"
 
@@ -704,6 +620,7 @@ src_configure() {
 		--with-libclang-path="$(llvm-config --libdir)" \
 		--with-system-nspr \
 		--with-system-nss \
+		--with-system-png \
 		--with-system-zlib \
 		--with-toolchain-prefix="${CHOST}-" \
 		--with-unsigned-addon-scopes=app,system \
@@ -762,7 +679,6 @@ src_configure() {
 	mozconfig_use_with system-jpeg
 	mozconfig_use_with system-libevent system-libevent "${SYSROOT}${EPREFIX}/usr"
 	mozconfig_use_with system-libvpx
-	mozconfig_use_with system-png
 	mozconfig_use_with system-webp
 
 	mozconfig_use_enable dbus
@@ -801,12 +717,8 @@ src_configure() {
 
 			mozconfig_add_options_ac '+lto' --enable-lto=cross
 		else
-			# ld.gold is known to fail:
-			# /usr/lib/gcc/x86_64-pc-linux-gnu/11.2.1/../../../../x86_64-pc-linux-gnu/bin/ld.gold: internal error in set_xindex, at /var/tmp/portage/sys-devel/binutils-2.37_p1-r1/work/binutils-2.37/gold/object.h:1050
-
 			# ThinLTO is currently broken, see bmo#1644409
 			mozconfig_add_options_ac '+lto' --enable-lto=full
-			mozconfig_add_options_ac "linker is set to bfd" --enable-linker=bfd
 		fi
 
 		if use pgo ; then
@@ -942,10 +854,11 @@ src_configure() {
 
 	# Use system's Python environment
 	export MACH_USE_SYSTEM_PYTHON=1
-	export PIP_NO_CACHE_DIR=off
 
 	# Disable notification when build system has finished
 	export MOZ_NOSPAM=1
+
+	export RUSTC_OPT_LEVEL=1
 
 	# Portage sets XARGS environment variable to "xargs -r" by default which
 	# breaks build system's check_prog() function which doesn't support arguments
@@ -1030,9 +943,9 @@ src_install() {
 	# Install system-wide preferences
 	local PREFS_DIR="${MOZILLA_FIVE_HOME}/browser/defaults/preferences"
 	insinto "${PREFS_DIR}"
-	newins "${FILESDIR}"/gentoo-default-prefs.js gentoo-prefs.js
+	newins "${FILESDIR}"/gentoo-default-prefs.js all-gentoo.js
 
-	local GENTOO_PREFS="${ED}${PREFS_DIR}/gentoo-prefs.js"
+	local GENTOO_PREFS="${ED}${PREFS_DIR}/all-gentoo.js"
 
 	# Set dictionary path to use system hunspell
 	cat >>"${GENTOO_PREFS}" <<-EOF || die "failed to set spellchecker.dictionary_path pref"
@@ -1177,9 +1090,7 @@ pkg_postinst() {
 		elog
 	fi
 
-	local show_doh_information
-	local show_normandy_information
-	local show_shortcut_information
+	local show_doh_information show_normandy_information show_shortcut_information
 
 	if [[ -z "${REPLACING_VERSIONS}" ]] ; then
 		# New install; Tell user that DoH is disabled by default
@@ -1226,10 +1137,10 @@ pkg_postinst() {
 
 	if [[ -n "${show_shortcut_information}" ]] ; then
 		elog
-		elog "Since ${PN}-91.0 we no longer install multiple shortcuts for"
+		elog "Since firefox-91.0 we no longer install multiple shortcuts for"
 		elog "each supported display protocol.  Instead we will only install"
-		elog "one generic Mozilla ${PN^} shortcut."
-		elog "If you still want to be able to select between running Mozilla ${PN^}"
+		elog "one generic Mozilla Firefox shortcut."
+		elog "If you still want to be able to select between running Mozilla Firefox"
 		elog "on X11 or Wayland, you have to re-create these shortcuts on your own."
 	fi
 }
