@@ -3,7 +3,8 @@
 
 EAPI="7"
 
-FIREFOX_PATCHSET="firefox-91esr-patches-03.tar.xz"
+FIREFOX_RISCV_PATCHSET="firefox-94-patches-riscv.tar.xz"
+FIREFOX_PATCHSET="firefox-94-patches-80.tar.xz"
 
 LLVM_MAX_SLOT=13
 
@@ -48,7 +49,8 @@ if [[ ${PV} == *_rc* ]] ; then
 fi
 
 PATCH_URIS=(
-	https://dev.gentoo.org/~{polynomial-c,whissi}/mozilla/patchsets/${FIREFOX_PATCHSET}
+	https://dev.gentoo.org/~dlan/mozilla/patchsets/${FIREFOX_RISCV_PATCHSET}
+	https://dev.gentoo.org/~{axs,polynomial-c,whissi,dlan}/mozilla/patchsets/${FIREFOX_PATCHSET}
 )
 
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
@@ -57,7 +59,7 @@ SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}
 DESCRIPTION="Thunderbird Mail Client"
 HOMEPAGE="https://www.thunderbird.net/"
 
-KEYWORDS="amd64 ~arm64 ~ppc64 x86"
+KEYWORDS="amd64 ~arm64 ~ppc64 ~riscv x86"
 
 SLOT="0/$(ver_cut 1)"
 LICENSE="MPL-2.0 GPL-2 LGPL-2.1"
@@ -108,7 +110,7 @@ BDEPEND="${PYTHON_DEPS}
 	x86? ( >=dev-lang/nasm-2.13 )"
 
 CDEPEND="
-	>=dev-libs/nss-3.68
+	>=dev-libs/nss-3.69
 	>=dev-libs/nspr-4.32
 	dev-libs/atk
 	dev-libs/expat
