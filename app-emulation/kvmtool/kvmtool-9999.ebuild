@@ -34,9 +34,17 @@ CONFIG_CHECK="
 "
 
 pkg_pretend() {
-	if use kernel_linux && kernel_is lt 2 6 25; then
-		eerror "This version of KVM requires a host kernel of 2.6.25 or higher."
-	elif use kernel_linux; then
+	if use kernel_linux ; then
+		if kernel_is lt 2 6 25; then
+			eerror "This version of KVM requires a host kernel of 2.6.25 or higher."
+		fi
+		if use riscv && kernel_is lt 5 16; then
+			ewarn "RISC-V KVM official support landed in kernel 5.16,"
+			ewarn "and requires the hypervisor extension."
+			ewarn "Try out https://github.com/kvm-riscv/linux in qemu"
+			ewarn "if your kernel/hardware doesn't support it"
+		fi
+
 		if ! linux_config_exists; then
 			eerror "Unable to check your kernel for KVM support"
 		else
