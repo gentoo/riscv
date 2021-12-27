@@ -1,5 +1,5 @@
+# Copyright 2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# adapted from https://data.gpo.zugaina.org/defiance/app-emulation/kvmtool/kvmtool-9999.ebuild
 
 EAPI=8
 
@@ -34,9 +34,17 @@ CONFIG_CHECK="
 "
 
 pkg_pretend() {
-	if use kernel_linux && kernel_is lt 2 6 25; then
-		eerror "This version of KVM requires a host kernel of 2.6.25 or higher."
-	elif use kernel_linux; then
+	if use kernel_linux ; then
+		if kernel_is lt 2 6 25; then
+			eerror "This version of KVM requires a host kernel of 2.6.25 or higher."
+		fi
+		if use riscv && kernel_is lt 5 16; then
+			ewarn "RISC-V KVM official support landed in kernel 5.16,"
+			ewarn "and requires the hypervisor extension."
+			ewarn "Try out https://github.com/kvm-riscv/linux in qemu"
+			ewarn "if your kernel/hardware doesn't support it"
+		fi
+
 		if ! linux_config_exists; then
 			eerror "Unable to check your kernel for KVM support"
 		else
@@ -55,7 +63,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply_user
+	default
 	sed -e 's/^CFLAGS\t:=/CFLAGS := $(CFLAGS)/' \
 		-e 's/^LDFLAGS\t:=/LDFLAGS := $(LDFLAGS)/' -i Makefile
 }
@@ -66,6 +74,6 @@ src_compile() {
 
 src_install() {
 	dobin lkvm vm || die
-	dodoc COPYING README Documentation/virtio-console.txt || die
+	dodoc README Documentation/virtio-console.txt || die
 	doman Documentation/${PN}.1
 }
