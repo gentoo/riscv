@@ -1,5 +1,5 @@
+# Copyright 2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-# adapted from https://data.gpo.zugaina.org/defiance/app-emulation/kvmtool/kvmtool-9999.ebuild
 
 EAPI=8
 
@@ -63,7 +63,7 @@ src_unpack() {
 }
 
 src_prepare() {
-	eapply_user
+	default
 	sed -e 's/^CFLAGS\t:=/CFLAGS := $(CFLAGS)/' \
 		-e 's/^LDFLAGS\t:=/LDFLAGS := $(LDFLAGS)/' -i Makefile
 }
@@ -74,6 +74,6 @@ src_compile() {
 
 src_install() {
 	dobin lkvm vm || die
-	dodoc COPYING README Documentation/virtio-console.txt || die
+	dodoc README Documentation/virtio-console.txt || die
 	doman Documentation/${PN}.1
 }
