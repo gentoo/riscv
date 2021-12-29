@@ -11,9 +11,9 @@ HOMEPAGE="https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git/"
 LICENSE="GPL-2"
 SLOT="0"
 IUSE=""
+EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git"
 
 DEPEND="riscv? ( sys-apps/dtc )"
-BDEPEND="${DEPEND}"
 RDEPEND="${DEPEND}"
 
 function ctarget() {
@@ -51,15 +51,6 @@ pkg_pretend() {
 			check_extra_config
 		fi
 	fi
-}
-
-src_unpack() {
-	if use riscv ; then
-		EGIT_REPO_URI="https://github.com/kvm-riscv/kvmtool.git"
-	else
-		EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git"
-	fi
-	git-r3_src_unpack
 }
 
 src_prepare() {
