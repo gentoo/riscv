@@ -28,6 +28,7 @@ fi
 
 # ppc64 patchset based on https://github.com/chromium-ppc64le releases
 SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-5.15.2_p20211019-jumbo-build.patch.bz2
+	https://dev.gentoo.org/~dlan/distfiles/${CATEGORY}/${PN}/${PN}-5.15.3-riscv-0.tar.xz
 	ppc64? ( https://dev.gentoo.org/~gyakovlev/distfiles/${PN}-5.15.2-r1-chromium87-ppc64le.tar.xz )"
 
 IUSE="alsa bindist designer geolocation +jumbo-build kerberos pulseaudio +system-ffmpeg +system-icu widgets"
@@ -107,6 +108,8 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.15.2_p20210224-disable-git.patch" # downstream snapshot fix
 	"${FILESDIR}/${PN}-5.15.2_p20211015-pdfium-system-lcms2.patch" # by Debian, QTBUG-61746
 	"${WORKDIR}/${PN}-5.15.2_p20211019-jumbo-build.patch" # bug 813957
+	"${WORKDIR}/${PN}-5.15.3-riscv-general.patch"
+	"${WORKDIR}/${PN}-5.15.3-riscv-v8.patch"
 )
 
 qtwebengine_check-reqs() {
@@ -126,7 +129,7 @@ qtwebengine_check-reqs() {
 	# Estimate the amount of RAM required
 	# Multiplier is *10 because Bash doesn't do floating point maths.
 	# Let's crudely assume ~2GB per compiler job for GCC.
-	local multiplier=20
+	local multiplier=8
 
 	# And call it ~1.5GB for Clang.
 	if tc-is-clang ; then
