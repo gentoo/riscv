@@ -1,0 +1,14 @@
+diff --git a/scripts/config.mk b/scripts/config.mk
+index 7b85f49..f8d994e 100644
+--- a/scripts/config.mk
++++ b/scripts/config.mk
+@@ -26,6 +26,9 @@ $(MCONF):
+ $(FIXDEP):
+ 	$(Q)$(MAKE) $(silent) -C $(FIXDEP_PATH)
+ 
++syncconfig: $(CONF) $(FIXDEP)
++	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
++
+ menuconfig: $(MCONF) $(CONF) $(FIXDEP)
+ 	$(Q)$(MCONF) $(Kconfig)
+ 	$(Q)$(CONF) $(silent) --syncconfig $(Kconfig)
