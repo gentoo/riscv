@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit libtool linux-info systemd
+inherit autotools libtool linux-info systemd
 
 if [[ ${PV} == "9999" ]] ; then
 	inherit git-r3 autotools
@@ -35,6 +35,7 @@ CONFIG_CHECK="~KEXEC"
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.0.4-disable-kexec-test.patch
 	"${FILESDIR}"/${PN}-2.0.4-out-of-source.patch
+	"${FILESDIR}"/${PN}-2.0.24-riscv.patch
 )
 
 pkg_setup() {
@@ -48,11 +49,7 @@ src_prepare() {
 	# Append PURGATORY_EXTRA_CFLAGS flags set by configure, instead of overriding them completely.
 	sed -e "/^PURGATORY_EXTRA_CFLAGS =/s/=/+=/" -i Makefile.in || die
 
-	if [[ "${PV}" == 9999 ]] ; then
-		eautoreconf
-	else
-		elibtoolize
-	fi
+	eautoreconf
 }
 
 src_configure() {
