@@ -35,8 +35,7 @@ inherit savedconfig readme.gentoo-r1
 DESCRIPTION="NJU EMUlator, a full system x86/mips32/riscv32/riscv64 emulator for teaching"
 HOMEPAGE="https://github.com/OpenXiangShan/NEMU"
 
-# no license specified in upstream
-LICENSE="GPL-2"
+LICENSE="MulanPSL-2.0"
 SLOT="0"
 IUSE="savedconfig"
 
