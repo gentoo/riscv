@@ -11,7 +11,7 @@ DESCRIPTION="Library for rendering dynamic web content in Qt5 C++ and QML applic
 HOMEPAGE="https://www.qt.io/"
 
 if [[ ${QT5_BUILD_TYPE} == release ]]; then
-	KEYWORDS="amd64 ~arm arm64 ~ppc64 x86"
+	KEYWORDS="amd64 ~arm arm64 ~ppc64 ~riscv x86"
 	if [[ ${PV} == ${QT5_PV}_p* ]]; then
 		SRC_URI="https://dev.gentoo.org/~asturm/distfiles/${P}.tar.xz"
 		S="${WORKDIR}/${P}"
@@ -29,7 +29,8 @@ fi
 # ppc64 patchset based on https://github.com/chromium-ppc64le releases
 SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-5.15.2_p20211019-jumbo-build.patch.bz2
 	https://dev.gentoo.org/~asturm/distfiles/${PN}-5.15.3_p20220406-patchset.tar.xz
-	ppc64? ( https://dev.gentoo.org/~gyakovlev/distfiles/${PN}-5.15.2-r1-chromium87-ppc64le.tar.xz )"
+	ppc64? ( https://dev.gentoo.org/~gyakovlev/distfiles/${PN}-5.15.2-r1-chromium87-ppc64le.tar.xz )
+	riscv? ( https://dev.gentoo.org/~dlan/distfiles/${CATEGORY}/${PN}/${PN}-5.15.3-riscv-0.tar.xz )"
 
 IUSE="alsa bindist designer geolocation +jumbo-build kerberos pulseaudio screencast +system-ffmpeg +system-icu widgets"
 REQUIRED_USE="designer? ( widgets )"
@@ -113,6 +114,8 @@ PATCHES=(
 	"${WORKDIR}/${PN}-5.15.2_p20211019-jumbo-build.patch" # bug 813957
 	"${WORKDIR}/${PN}-5.15.3_p20220406-patchset" # bug 698988 (py2--), pipewire-3
 	"${FILESDIR}/${P}-fixup-CVE-2022-0796.patch" # bug 853097
+	"${WORKDIR}/${PN}-5.15.3-riscv-general.patch"
+	"${WORKDIR}/${PN}-5.15.3-riscv-v8.patch"
 )
 
 qtwebengine_check-reqs() {
@@ -132,7 +135,7 @@ qtwebengine_check-reqs() {
 	# Estimate the amount of RAM required
 	# Multiplier is *10 because Bash doesn't do floating point maths.
 	# Let's crudely assume ~2GB per compiler job for GCC.
-	local multiplier=20
+	local multiplier=8
 
 	# And call it ~1.5GB for Clang.
 	if tc-is-clang ; then
