@@ -11,7 +11,7 @@ DESCRIPTION="Library for rendering dynamic web content in Qt5 C++ and QML applic
 HOMEPAGE="https://www.qt.io/"
 
 if [[ ${QT5_BUILD_TYPE} == release ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
+	KEYWORDS="amd64 ~arm arm64 ~ppc64 x86"
 	if [[ ${PV} == ${QT5_PV}_p* ]]; then
 		SRC_URI="https://dev.gentoo.org/~asturm/distfiles/${P}.tar.xz"
 		S="${WORKDIR}/${P}"
@@ -29,7 +29,6 @@ fi
 # ppc64 patchset based on https://github.com/chromium-ppc64le releases
 SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-5.15.2_p20211019-jumbo-build.patch.bz2
 	https://dev.gentoo.org/~asturm/distfiles/${PN}-5.15.3_p20220406-patchset.tar.xz
-	riscv? ( https://dev.gentoo.org/~dlan/distfiles/${CATEGORY}/${PN}/${PN}-5.15.3-riscv-0.tar.xz )
 	ppc64? ( https://dev.gentoo.org/~gyakovlev/distfiles/${PN}-5.15.2-r1-chromium87-ppc64le.tar.xz )"
 
 IUSE="alsa bindist designer geolocation +jumbo-build kerberos pulseaudio screencast +system-ffmpeg +system-icu widgets"
@@ -105,15 +104,15 @@ BDEPEND="${PYTHON_DEPS}
 
 PATCHES=(
 	"${FILESDIR}/${PN}-5.15.2-disable-fatal-warnings.patch" # downstream, bug 695446
-	"${FILESDIR}/${PN}-5.15.2-extra_gn.patch" # downstream, bug 774186
+	"${FILESDIR}/${PN}-5.15.3_p20220505-extra-gn.patch" # downstream, bug 774186
 	"${FILESDIR}/${PN}-5.15.2_p20210224-chromium-87-v8-icu68.patch" # downstream, bug 757606
 	"${FILESDIR}/${PN}-5.15.2_p20210224-disable-git.patch" # downstream snapshot fix
 	"${FILESDIR}/${PN}-5.15.2_p20211015-pdfium-system-lcms2.patch" # by Debian, QTBUG-61746
 	"${FILESDIR}/${PN}-5.15.3_p20220329-clang14.patch" # by FreeBSD, bug 836604
+	"${FILESDIR}/${PN}-5.15.3_p20220406-gcc12-includes.patch" # by openSUSE, bug 840326
 	"${WORKDIR}/${PN}-5.15.2_p20211019-jumbo-build.patch" # bug 813957
 	"${WORKDIR}/${PN}-5.15.3_p20220406-patchset" # bug 698988 (py2--), pipewire-3
-	"${WORKDIR}/${PN}-5.15.3-riscv-general.patch"
-	"${WORKDIR}/${PN}-5.15.3-riscv-v8.patch"
+	"${FILESDIR}/${P}-fixup-CVE-2022-0796.patch" # bug 853097
 )
 
 qtwebengine_check-reqs() {
@@ -133,7 +132,7 @@ qtwebengine_check-reqs() {
 	# Estimate the amount of RAM required
 	# Multiplier is *10 because Bash doesn't do floating point maths.
 	# Let's crudely assume ~2GB per compiler job for GCC.
-	local multiplier=8
+	local multiplier=20
 
 	# And call it ~1.5GB for Clang.
 	if tc-is-clang ; then
@@ -229,6 +228,11 @@ src_prepare() {
 		mkdir -vp source/config/linux/ppc64 || die
 		mkdir -p source/libvpx/test || die
 		touch source/libvpx/test/test.mk || die
+		# clang-format is used to re-format sources
+		# but we'd rather make it a no-op than introduce a clang dependency
+		# https://bugs.gentoo.org/849458
+		clang-format() { : ; }
+		export -f clang-format || die
 		./generate_gni.sh || die
 		popd >/dev/null || die
 	fi
@@ -236,7 +240,7 @@ src_prepare() {
 
 src_configure() {
 	export NINJA_PATH=/usr/bin/ninja
-	export NINJAFLAGS="${NINJAFLAGS:--j$(makeopts_jobs) -l$(makeopts_loadavg "${MAKEOPTS}" 0) -v}"
+	export NINJAFLAGS="${NINJAFLAGS:--j$(makeopts_jobs "${MAKEOPTS}" 999) -l$(makeopts_loadavg "${MAKEOPTS}" 0) -v}"
 
 	local myqmakeargs=(
 		--
@@ -266,8 +270,8 @@ src_install() {
 }
 
 pkg_preinst() {
-	elog "This version of Qt WebEngine is based on Chromium version 87.0.4280, with"
-	elog "additional security fixes from newer versions. Extensive as it is, the"
+	elog "This version of Qt WebEngine is based on Chromium version 87.0.4280.144,"
+	elog "with additional security fixes from newer versions. Extensive as it is, the"
 	elog "list of backports is impossible to evaluate, but always bound to be behind"
 	elog "Chromium's release schedule."
 	elog "In addition, various online services may deny service based on an outdated"
