@@ -699,7 +699,7 @@ index 0000000..d05c47d
 +			       initrd_base + initrd_size);
 +
 +		dbgprintf("Base addr for initrd image: 0x%lX\n", initrd_base);
-+		min_usable = initrd_base;
++		max_usable = initrd_base;
 +	}
 +
 +	/* Add device tree */
