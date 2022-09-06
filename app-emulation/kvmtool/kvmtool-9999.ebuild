@@ -3,6 +3,7 @@
 
 EAPI=8
 
+EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git"
 inherit git-r3 linux-info
 
 DESCRIPTION="A lightweight tool for hosting KVM guests"
@@ -41,8 +42,6 @@ pkg_pretend() {
 		if use riscv && kernel_is lt 5 16; then
 			ewarn "RISC-V KVM official support landed in kernel 5.16,"
 			ewarn "and requires the hypervisor extension."
-			ewarn "Try out https://github.com/kvm-riscv/linux in qemu"
-			ewarn "if your kernel/hardware doesn't support it"
 		fi
 
 		if ! linux_config_exists; then
@@ -51,15 +50,6 @@ pkg_pretend() {
 			check_extra_config
 		fi
 	fi
-}
-
-src_unpack() {
-	if use riscv ; then
-		EGIT_REPO_URI="https://github.com/kvm-riscv/kvmtool.git"
-	else
-		EGIT_REPO_URI="https://git.kernel.org/pub/scm/linux/kernel/git/will/kvmtool.git"
-	fi
-	git-r3_src_unpack
 }
 
 src_prepare() {
