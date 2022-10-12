@@ -297,6 +297,9 @@ PATCHES=(
 
 	# pending upstream
 	"${FILESDIR}/${PN}-7.3.5.2-poppler-22.09.0.patch"
+
+	# riscv64 port
+	"${FILESDIR}/${PN}-7.3.6.2-riscv64.patch"
 )
 
 S="${WORKDIR}/${PN}-${MY_PV}"
