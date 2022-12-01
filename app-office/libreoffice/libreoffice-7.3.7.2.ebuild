@@ -103,7 +103,7 @@ LICENSE="|| ( LGPL-3 MPL-1.1 )"
 SLOT="0"
 
 [[ ${MY_PV} == *9999* ]] || \
-KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc64 x86 ~amd64-linux"
+KEYWORDS="amd64 ~arm arm64 ~loong ~ppc64 ~x86 ~amd64-linux"
 
 COMMON_DEPEND="${PYTHON_DEPS}
 	app-arch/unzip
@@ -294,12 +294,6 @@ PATCHES=(
 
 	# 7.4 branch
 	"${FILESDIR}/${PN}-7.3.5.2-gpgme-1.18.0.patch"
-
-	# pending upstream
-	"${FILESDIR}/${PN}-7.3.5.2-poppler-22.09.0.patch"
-
-	# riscv64 port
-	"${FILESDIR}/${PN}-7.3.6.2-riscv64.patch"
 )
 
 S="${WORKDIR}/${PN}-${MY_PV}"
