@@ -14,6 +14,7 @@ KEYWORDS="~amd64"
 
 DEPEND="dev-qt/qtgui
 	dev-qt/qtwidgets
+	virtual/libelf
 	"
 RDEPEND="${DEPEND}"
 BDEPEND=""
