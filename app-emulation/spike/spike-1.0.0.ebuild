@@ -11,9 +11,6 @@ SRC_URI="https://github.com/riscv/riscv-isa-sim/archive/refs/tags/v${PV}.tar.gz 
 LICENSE="BSD"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
-IUSE=""
-
-DEPEND=""
 
 S="${WORKDIR}/riscv-isa-sim-${PV}"
 src_prepare() {
