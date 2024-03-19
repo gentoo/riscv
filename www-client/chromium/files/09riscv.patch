@@ -1,0 +1,12 @@
+diff -Naur a/build/config/clang/BUILD.gn b/build/config/clang/BUILD.gn
+--- a/build/config/clang/BUILD.gn	2024-02-14 22:02:58.133536045 +0000
++++ b/build/config/clang/BUILD.gn	2024-02-14 22:04:35.885744794 +0000
+@@ -136,6 +136,8 @@
+           _dir = "armv7-unknown-linux-gnueabihf"
+         } else if (current_cpu == "arm64") {
+           _dir = "aarch64-unknown-linux-gnu"
++        } else if (current_cpu == "riscv64") {
++          _dir = "riscv64-unknown-linux-gnu"
+         } else {
+           assert(false)  # Unhandled cpu type
+         }
