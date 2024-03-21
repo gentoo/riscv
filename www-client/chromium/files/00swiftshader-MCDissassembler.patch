@@ -1,0 +1,11 @@
+diff -Naur a/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn b/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
+--- a/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn	2024-03-11 15:56:30.292460948 +0000
++++ b/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn	2024-03-11 15:57:33.253853408 +0000
+@@ -773,6 +773,7 @@
+     "llvm/lib/MC/MCContext.cpp",
+     "llvm/lib/MC/MCDXContainerStreamer.cpp",
+     "llvm/lib/MC/MCDXContainerWriter.cpp",
++    "llvm/lib/MC/MCDisassembler/MCDisassembler.cpp",
+     "llvm/lib/MC/MCDisassembler/MCRelocationInfo.cpp",
+     "llvm/lib/MC/MCDwarf.cpp",
+     "llvm/lib/MC/MCELFObjectTargetWriter.cpp",
