@@ -1,0 +1,31 @@
+diff -Naur a/third_party/cpuinfo/BUILD.gn b/third_party/cpuinfo/BUILD.gn
+--- a/third_party/cpuinfo/BUILD.gn	2024-03-16 09:54:46.809862047 +0000
++++ b/third_party/cpuinfo/BUILD.gn	2024-03-16 10:00:01.616932065 +0000
+@@ -123,6 +123,12 @@
+     ]
+   }
+ 
++  if (current_cpu == "riscv64") {
++    sources = [
++      "src/src/riscv/uarch.c",
++    ]
++  }
++
+   # Because "init.c" is reused again, but only has sources in the corresponding
+   # build config.
+   deps = [ ":x86_cache" ]
+@@ -190,6 +196,14 @@
+     ]
+   }
+ 
++  if ((is_linux || is_chromeos) && current_cpu == "riscv64") {
++    sources = [
++      "src/src/riscv/linux/api.h",
++      "src/src/riscv/linux/init.c",
++      "src/src/riscv/linux/riscv-hw.c",
++      "src/src/riscv/linux/riscv-isa.c",
++    ]
++  }
+   if (is_android && (current_cpu == "arm" || current_cpu == "arm64")) {
+     sources = [
+       "src/src/arm/android/properties.c",
