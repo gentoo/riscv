@@ -13,8 +13,13 @@ if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/riscv-software-src/riscv-isa-sim.git"
 else
-	SRC_URI="https://github.com/riscv-software-src/riscv-isa-sim/archive/${COMMIT}.tar.gz -> ${P}.gh.htar.gz"
-	S="${WORKDIR}/${PN}-${COMMIT}"
+	MY_COMMIT=3427b459f88d2334368a1abbdf5a3000957f08e8
+	if [[ -v MY_COMMIT ]]; then
+		SRC_URI="https://github.com/riscv-software-src/riscv-isa-sim/archive/${MY_COMMIT}.tar.gz -> ${P}.tar.gz"
+		S="${WORKDIR}/riscv-isa-sim-${MY_COMMIT}"
+	else
+		SRC_URI="https://github.com/riscv/riscv-isa-sim/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+	fi
 	KEYWORDS="~amd64"
 fi
 
