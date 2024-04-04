@@ -10,7 +10,6 @@
 		<email>dlan@gentoo.org</email>
 		<name>Yixun Lan</name>
 	</maintainer>
-	<stabilize-allarches/>
 	<upstream>
 		<remote-id type="github">riscv/riscv-isa-sim</remote-id>
 	</upstream>
