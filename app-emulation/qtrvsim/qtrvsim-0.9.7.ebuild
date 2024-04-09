@@ -18,3 +18,8 @@ DEPEND="
 	virtual/libelf:=
 "
 RDEPEND="${DEPEND}"
+
+CMAKE_SKIP_TESTS=(
+	# Fails in 0.9.7, but not in master.
+	cli_stalls
+)
