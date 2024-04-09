@@ -14,7 +14,7 @@ SLOT="0"
 KEYWORDS="~amd64"
 
 DEPEND="
-	dev-qt/qtbase:6
+	dev-qt/qtbase:6[gui,widgets]
 	virtual/libelf:=
 "
 RDEPEND="${DEPEND}"
