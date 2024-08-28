@@ -1,0 +1,28 @@
+Index: chromium-128.0.6613.84/v8/src/wasm/baseline/riscv/liftoff-assembler-riscv-inl.h
+===================================================================
+--- chromium-128.0.6613.84.orig/v8/src/wasm/baseline/riscv/liftoff-assembler-riscv-inl.h
++++ chromium-128.0.6613.84/v8/src/wasm/baseline/riscv/liftoff-assembler-riscv-inl.h
+@@ -2368,6 +2368,22 @@ void LiftoffAssembler::CallFrameSetupStu
+   CallBuiltin(Builtin::kWasmLiftoffFrameSetup);
+ }
+ 
++bool LiftoffAssembler::emit_f16x8_splat(LiftoffRegister dst,
++                                        LiftoffRegister src) {
++  return false;
++}
++bool LiftoffAssembler::emit_f16x8_extract_lane(LiftoffRegister dst,
++                                               LiftoffRegister lhs,
++                                               uint8_t imm_lane_idx) {
++  return false;
++}
++bool LiftoffAssembler::emit_f16x8_replace_lane(LiftoffRegister dst,
++                                               LiftoffRegister src1,
++                                               LiftoffRegister src2,
++                                               uint8_t imm_lane_idx) {
++  return false;
++}
++
+ }  // namespace v8::internal::wasm
+ 
+ #endif  // V8_WASM_BASELINE_RISCV_LIFTOFF_ASSEMBLER_RISCV_INL_H_
+
