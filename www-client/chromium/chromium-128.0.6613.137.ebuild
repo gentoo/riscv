@@ -27,8 +27,8 @@ EAPI=8
 GN_MIN_VER=0.2165
 RUST_MIN_VER=1.78.0
 # chromium-tools/get-chromium-toolchain-strings.sh
-GOOGLE_CLANG_VER=llvmorg-19-init-10646-g084e2b53-57
-GOOGLE_RUST_VER=32dd3795bce8b347fda786529cf5e42a813e0b7d-2
+GOOGLE_CLANG_VER=llvmorg-19-init-14561-gecea8371-3000
+GOOGLE_RUST_VER=3cf924b934322fd7b514600a7dc84fc517515346-3
 
 : ${CHROMIUM_FORCE_GOOGLE_TOOLCHAIN=no}
 
@@ -50,8 +50,8 @@ inherit python-any-r1 qmake-utils readme.gentoo-r1 systemd toolchain-funcs virtu
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="https://www.chromium.org/"
-PATCHSET_PPC64="127.0.6533.88-1raptor0~deb12u2"
-PATCH_V="${PV%%\.*}-1"
+PATCHSET_PPC64="128.0.6613.119-1raptor0~deb12u1"
+PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}.tar.xz
 	system-toolchain? (
 		https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
@@ -59,7 +59,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 	!system-toolchain? (
 		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/clang-${GOOGLE_CLANG_VER}.tar.xz
 			-> chromium-${PV%%\.*}-clang.tar.xz
-		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/rust-toolchain-${GOOGLE_RUST_VER}-${GOOGLE_CLANG_VER%???}.tar.xz
+		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/rust-toolchain-${GOOGLE_RUST_VER}-${GOOGLE_CLANG_VER%?????}.tar.xz
 			-> chromium-${PV%%\.*}-rust.tar.xz
 	)
 	ppc64? (
@@ -354,36 +354,6 @@ chromium_extract_rust_version() {
 	echo $rustc_version
 }
 
-# https://github.com/gentoo/gentoo/pull/28355
-chromium_tc-ld-is-mold() {
-	local out
-
-	# Ensure ld output is in English.
-	local -x LC_ALL=C
-
-	# First check the linker directly.
-	out=$($(tc-getLD "$@") --version 2>&1)
-	if [[ ${out} == *"mold"* ]] ; then
-		return 0
-	fi
-
-	# Then see if they're selecting mold via compiler flags.
-	# Note: We're assuming they're using LDFLAGS to hold the
-	# options and not CFLAGS/CXXFLAGS.
-	local base="${T}/test-tc-linker"
-	cat <<-EOF > "${base}.c"
-	int main(void) { return 0; }
-	EOF
-	out=$($(tc-getCC "$@") ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} -Wl,--version "${base}.c" -o "${base}" 2>&1)
-	rm -f "${base}"*
-	if [[ ${out} == *"mold"* ]] ; then
-		return 0
-	fi
-
-	# No mold here!
-	return 1
-}
-
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		# The pre_build_checks are all about compilation resources, no need to run it for a binpkg
@@ -402,7 +372,7 @@ pkg_setup() {
 			fi
 
 			# 936858
-			if chromium_tc-ld-is-mold; then
+			if tc-ld-is-mold; then
 				eerror "Your toolchain is using the mold linker."
 				eerror "This is not supported by Chromium."
 				die "Please switch to a different linker."
@@ -494,10 +464,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
-		"${FILESDIR}/chromium-127-browser-ui-deps.patch"
 		"${FILESDIR}/chromium-127-bindgen-custom-toolchain.patch"
 		"${FILESDIR}/chromium-127-updater-systemd.patch"
-		"${FILESDIR}/swiftshader-MCDissassembler.patch"
+        "${FILESDIR}/swiftshader-MCDissassembler.patch"
         "${FILESDIR}/swiftshader-use-llvm16.patch"
         "${FILESDIR}/Debian-fix-rust-linking.patch"
         "${FILESDIR}/riscv-dav1d.patch"
@@ -505,6 +474,7 @@ src_prepare() {
         "${FILESDIR}/riscv-ffmpeg.patch"
         "${FILESDIR}/riscv.patch"
         "${FILESDIR}/cpuinfo.patch"
+        "${FILESDIR}/riscv-v8.patch"
 	)
 
 	# 127: test deps are broken for ui/lens with system ICU "//third_party/icu:icuuc_public"
@@ -630,6 +600,7 @@ src_prepare() {
 		third_party/devtools-frontend/src/front_end/third_party/marked
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/mitt
+		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/parsel-js
 		third_party/devtools-frontend/src/front_end/third_party/puppeteer/package/lib/esm/third_party/rxjs
 		third_party/devtools-frontend/src/front_end/third_party/vscode.web-custom-data
 		third_party/devtools-frontend/src/front_end/third_party/wasmparser
@@ -767,6 +738,7 @@ src_prepare() {
 		third_party/tflite/src/third_party/fft2d
 		third_party/tflite/src/third_party/xla/third_party/tsl
 		third_party/tflite/src/third_party/xla/xla/tsl/util
+		third_party/tflite/src/third_party/xla/xla/tsl/framework
 		third_party/ukey2
 		third_party/unrar
 		third_party/utf
