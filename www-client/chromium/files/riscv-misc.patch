@@ -1,0 +1,41 @@
+Index: chromium-130.0.6723.116/components/metrics/debug/metrics_internals_utils.cc
+===================================================================
+--- chromium-130.0.6723.116.orig/components/metrics/debug/metrics_internals_utils.cc
++++ chromium-130.0.6723.116/components/metrics/debug/metrics_internals_utils.cc
+@@ -69,6 +69,8 @@ std::string CpuArchitectureToString(
+       return "arm32";
+     case variations::Study::TRANSLATED_X86_64:
+       return "translated_x86_64";
++    case variations::Study::RISCV64:
++      return "riscv64";
+   }
+   NOTREACHED_IN_MIGRATION();
+ }
+Index: chromium-130.0.6723.116/components/variations/proto/study.proto
+===================================================================
+--- chromium-130.0.6723.116.orig/components/variations/proto/study.proto
++++ chromium-130.0.6723.116/components/variations/proto/study.proto
+@@ -262,6 +262,8 @@ message Study {
+     // A Mac-only value, indicating an x86-64 binary running on an arm64 host
+     // via "Rosetta 2" binary translation.
+     TRANSLATED_X86_64 = 4;
++
++    RISCV64 = 5;
+   }
+ 
+   // Enum to pass as optional bool.
+Index: chromium-130.0.6723.116/components/variations/service/variations_field_trial_creator_base.cc
+===================================================================
+--- chromium-130.0.6723.116.orig/components/variations/service/variations_field_trial_creator_base.cc
++++ chromium-130.0.6723.116/components/variations/service/variations_field_trial_creator_base.cc
+@@ -120,6 +120,9 @@ Study::CpuArchitecture GetCurrentCpuArch
+     }
+     return Study::X86_64;
+   }
++  if (process_arch == "RISCV_64") {
++    return Study::RISCV64;
++  }
+   NOTREACHED_IN_MIGRATION();
+   return Study::X86_64;
+ }
+
