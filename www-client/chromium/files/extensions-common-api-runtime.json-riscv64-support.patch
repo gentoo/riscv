@@ -1,0 +1,36 @@
+From 688e2d4d0880e596656f2f079357767d24950c62 Mon Sep 17 00:00:00 2001
+From: kxxt <rsworktech@outlook.com>
+Date: Sat, 10 Feb 2024 09:49:46 +0800
+Subject: [PATCH] extensions/common/api/runtime.json: riscv64 support
+
+---
+ extensions/common/api/runtime.json | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/extensions/common/api/runtime.json b/extensions/common/api/runtime.json
+index 65a024c03011e..9965a83545807 100644
+--- a/extensions/common/api/runtime.json
++++ b/extensions/common/api/runtime.json
+@@ -98,7 +98,8 @@
+             {"name": "x86-32", "description": "Specifies the processer architecture as x86-32."},
+             {"name": "x86-64", "description": "Specifies the processer architecture as x86-64."},
+             {"name": "mips", "description": "Specifies the processer architecture as mips."},
+-            {"name": "mips64", "description": "Specifies the processer architecture as mips64."}
++            {"name": "mips64", "description": "Specifies the processer architecture as mips64."},
++            {"name": "riscv64", "description": "Specifies the processer architecture as riscv64."}
+          ],
+         "description": "The machine's processor architecture."
+       },
+@@ -111,7 +112,8 @@
+           {"name": "x86-32", "description": "Specifies the native client architecture as x86-32."},
+           {"name": "x86-64", "description": "Specifies the native client architecture as x86-64."},
+           {"name": "mips", "description": "Specifies the native client architecture as mips."},
+-          {"name": "mips64", "description": "Specifies the native client architecture as mips64."}
++          {"name": "mips64", "description": "Specifies the native client architecture as mips64."},
++          {"name": "riscv64", "description": "Specifies the native client architecture as riscv64."}
+         ]
+       },
+       {
+-- 
+2.43.0
+

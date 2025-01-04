@@ -25,10 +25,9 @@ EAPI=8
 # no reason not to. Todo: Re-enable USE=system-ffmpeg.
 
 GN_MIN_VER=0.2165
-RUST_MIN_VER=1.78.0
 # chromium-tools/get-chromium-toolchain-strings.sh
-GOOGLE_CLANG_VER=llvmorg-19-init-14561-gecea8371-3000
-GOOGLE_RUST_VER=3cf924b934322fd7b514600a7dc84fc517515346-3
+GOOGLE_CLANG_VER=llvmorg-20-init-1009-g7088a5ed-10
+GOOGLE_RUST_VER=595316b4006932405a63862d8fe65f71a6356293-5
 
 : ${CHROMIUM_FORCE_GOOGLE_TOOLCHAIN=no}
 
@@ -38,19 +37,19 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
 	sv sw ta te th tr uk ur vi zh-CN zh-TW"
 
-# While prerelease llvm is actually used in the google build, until we have a
-# sane way to select 'rust built with this llvm slot' that isn't stable and testing
-# subslots we will have to restrict LLVM_COMPAT to stable and testing keywords.
-LLVM_COMPAT=( {17..18} )
+LLVM_COMPAT=( 18 )
 PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="xml(+)"
+RUST_MIN_VER=1.78.0
+RUST_NEEDS_LLVM=1
+RUST_OPTIONAL=1
 
-inherit check-reqs chromium-2 desktop flag-o-matic llvm-utils ninja-utils pax-utils
-inherit python-any-r1 qmake-utils readme.gentoo-r1 systemd toolchain-funcs virtualx xdg-utils
+inherit check-reqs chromium-2 desktop flag-o-matic llvm-r1 ninja-utils pax-utils
+inherit python-any-r1 qmake-utils readme.gentoo-r1 rust systemd toolchain-funcs virtualx xdg-utils
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="https://www.chromium.org/"
-PATCHSET_PPC64="128.0.6613.119-1raptor0~deb12u1"
+PATCHSET_PPC64="128.0.6613.84-1raptor0~deb12u1"
 PATCH_V="${PV%%\.*}"
 SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}.tar.xz
 	system-toolchain? (
@@ -59,7 +58,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 	!system-toolchain? (
 		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/clang-${GOOGLE_CLANG_VER}.tar.xz
 			-> chromium-${PV%%\.*}-clang.tar.xz
-		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/rust-toolchain-${GOOGLE_RUST_VER}-${GOOGLE_CLANG_VER%?????}.tar.xz
+		https://commondatastorage.googleapis.com/chromium-browser-clang/Linux_x64/rust-toolchain-${GOOGLE_RUST_VER}-${GOOGLE_CLANG_VER%???}.tar.xz
 			-> chromium-${PV%%\.*}-rust.tar.xz
 	)
 	ppc64? (
@@ -70,7 +69,7 @@ SRC_URI="https://commondatastorage.googleapis.com/chromium-browser-official/${P}
 
 LICENSE="BSD"
 SLOT="0/stable"
-KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv"
+KEYWORDS="amd64 arm64 ~riscv"
 IUSE_SYSTEM_LIBS="+system-harfbuzz +system-icu +system-png +system-zstd"
 IUSE="+X ${IUSE_SYSTEM_LIBS} bindist cups debug ffmpeg-chromium gtk4 +hangouts headless kerberos +official pax-kernel pgo +proprietary-codecs pulseaudio"
 IUSE+=" qt5 qt6 +screencast selinux +system-toolchain +vaapi +wayland +widevine"
@@ -182,29 +181,6 @@ DEPEND="${COMMON_DEPEND}
 	)
 "
 
-depend_clang_llvm_version() {
-	echo "sys-devel/clang:$1"
-	echo "sys-devel/llvm:$1"
-	echo "=sys-devel/lld-$1*"
-	echo "virtual/rust:0/llvm-${1}[profiler(-)]"
-	echo "pgo? ( sys-libs/compiler-rt-sanitizers:${1}[profile] )"
-}
-
-# Parse LLVM_COMPAT and generate a usedep for each version
-depend_clang_llvm_versions() {
-	if [[ ${#LLVM_COMPAT[@]} -eq 0 ]]; then
-		depend_clang_llvm_version ${#LLVM_COMPAT[0]}
-	else
-		echo "|| ("
-		for (( i=${#LLVM_COMPAT[@]}-1 ; i>=0 ; i-- )); do
-			echo "("
-			depend_clang_llvm_version ${LLVM_COMPAT[i]}
-			echo ")"
-		done
-		echo ")"
-	fi
-}
-
 BDEPEND="
 	${COMMON_SNAPSHOT_DEPEND}
 	${PYTHON_DEPS}
@@ -217,7 +193,12 @@ BDEPEND="
 		qt6? ( dev-qt/qtbase:6 )
 	)
 	system-toolchain? (
-		$(depend_clang_llvm_versions)
+		$(llvm_gen_dep "
+			llvm-core/clang:\${LLVM_SLOT}
+			llvm-core/llvm:\${LLVM_SLOT}
+			llvm-core/lld:\${LLVM_SLOT}
+		")
+		${RUST_DEPEND}
 		pgo? (
 			>=dev-python/selenium-3.141.0
 			>=dev-util/web_page_replay_go-20220314
@@ -313,47 +294,6 @@ pkg_pretend() {
 	fi
 }
 
-# Chromium should build with any version of clang that we support
-# but we may need to pick the "best" one for a build (highest installed,
-# rust is built against it, etc.)
-# Check each slot in LLVM_COMPAT to see if clang/llvm/lld are available
-# and output the _highest_ slot that is actually available on a system.
-chromium_pick_llvm_slot() {
-	# LLVM_COMPAT is always going to be oldest to newest (or one value)
-	# let's flip it and check from newest to oldest and return the first one we find.
-	local slot
-	for (( i=${#LLVM_COMPAT[@]}-1 ; i>=0 ; i-- )); do
-		slot=${LLVM_COMPAT[i]}
-		if has_version "sys-devel/clang:${slot}" && \
-			has_version "sys-devel/llvm:${slot}" && \
-			has_version "sys-devel/lld:${slot}" && \
-			has_version "virtual/rust:0/llvm-${slot}" && \
-			( ! use pgo || has_version "sys-libs/compiler-rt-sanitizers:${slot}" ) ; then
-
-			echo "${slot}"
-			return
-		fi
-	done
-
-	die_msg="
-No suitable clang/llvm/lld slot found.
-Slots checked: ${LLVM_COMPAT[*]}.
-"
-	die "${die_msg}"
-}
-
-# We need the rust version in src_configure and pkg_setup
-chromium_extract_rust_version() {
-	[[ ${MERGE_TYPE} == binary ]] && return
-	local rustc_version=( $(eselect --brief rust show 2>/dev/null) )
-	rustc_version=${rustc_version[0]#rust-bin-}
-	rustc_version=${rustc_version#rust-}
-
-	[[ -z "${rustc_version}" ]] && die "Failed to determine rust version, check 'eselect rust' output"
-
-	echo $rustc_version
-}
-
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		# The pre_build_checks are all about compilation resources, no need to run it for a binpkg
@@ -361,10 +301,7 @@ pkg_setup() {
 
 		if use system-toolchain; then
 			# The linux:unbundle toolchain in GN grabs CC, CXX, CPP (etc) from the environment
-			# We'll set these to clang here then use llvm-utils functions to very explicitly set these
-			# to a sane value.
 			# This is effectively the 'force-clang' path if GCC support is re-added.
-			# TODO: check if the user has already selected a specific impl via make.conf and respect that.
 			if ! tc-is-lto && use official; then
 				einfo "USE=official selected and LTO not detected."
 				einfo "It is _highly_ recommended that LTO be enabled for performance reasons"
@@ -378,8 +315,7 @@ pkg_setup() {
 				die "Please switch to a different linker."
 			fi
 
-			LLVM_SLOT=$(chromium_pick_llvm_slot)
-			export LLVM_SLOT # used in src_configure for rust-y business
+			# We're forcing clang here; user choice is respected via llvm_slot_x USE
 			AR=llvm-ar
 			CPP="${CHOST}-clang++ -E"
 			NM=llvm-nm
@@ -391,32 +327,10 @@ pkg_setup() {
 				CPP="${CBUILD}-clang++ -E"
 			fi
 
-			# The llvm-r1_pkg_setup we have at home.
-			# We prepend the path _first_ to explicitly use the selected slot.
-			llvm_prepend_path "${LLVM_SLOT}"
-
-			llvm_fix_clang_version CC CPP CXX
-			llvm_fix_tool_path ADDR2LINE AR AS LD NM OBJCOPY OBJDUMP RANLIB
-			llvm_fix_tool_path READELF STRINGS STRIP
-
-			# Set LLVM_CONFIG to help Meson (bug #907965) but only do it
-			# for empty ESYSROOT (as a proxy for "are we cross-compiling?").
-			if [[ -z ${ESYSROOT} ]] ; then
-				llvm_fix_tool_path LLVM_CONFIG
-			fi
-
-			einfo "Using LLVM/Clang slot ${LLVM_SLOT} to build"
-
-			local rustc_ver=$(chromium_extract_rust_version)
-			if ver_test "${rustc_ver}" -lt "${RUST_MIN_VER}"; then
-					eerror "Rust >=${RUST_MIN_VER} is required"
-					eerror "Please run 'eselect rust' and select the correct rust version"
-					die "Selected rust version is too old"
-			else
-					einfo "Using rust ${rustc_ver} to build"
-			fi
-
+			llvm-r1_pkg_setup
+			rust_pkg_setup
 		fi
+
 		# Users should never hit this, it's purely a development convenience
 		if ver_test $(gn --version || die) -lt ${GN_MIN_VER}; then
 			die "dev-build/gn >= ${GN_MIN_VER} is required to build this Chromium"
@@ -457,7 +371,7 @@ src_prepare() {
 	# disable global media controls, crashes with libstdc++
 	sed -i -e \
 		"/\"GlobalMediaControlsCastStartStop\"/,+4{s/ENABLED/DISABLED/;}" \
-		"chrome/browser/media/router/media_router_feature.cc" || die
+		"chrome/browser/media/router/media_router_feature.cc"
 
 	local PATCHES=(
 		"${FILESDIR}/chromium-cross-compile.patch"
@@ -465,31 +379,27 @@ src_prepare() {
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-126-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-127-bindgen-custom-toolchain.patch"
-		"${FILESDIR}/chromium-127-updater-systemd.patch"
         "${FILESDIR}/swiftshader-MCDissassembler.patch"
         "${FILESDIR}/swiftshader-use-llvm16.patch"
         "${FILESDIR}/Debian-fix-rust-linking.patch"
         "${FILESDIR}/riscv-dav1d.patch"
+        "${FILESDIR}/riscv-cargo.patch"
         "${FILESDIR}/riscv-sandbox.patch"
         "${FILESDIR}/riscv-ffmpeg.patch"
         "${FILESDIR}/riscv.patch"
         "${FILESDIR}/cpuinfo.patch"
-        "${FILESDIR}/riscv-v8.patch"
+        "${FILESDIR}/riscv-misc.patch"
 	)
-
-	# 127: test deps are broken for ui/lens with system ICU "//third_party/icu:icuuc_public"
-	sed -i '/source_set("unit_tests") {/,/}/d' \
-		chrome/browser/ui/lens/BUILD.gn || die "Failed to remove bad test target"
-	sed -i '/lens:unit_tests/d' chrome/test/BUILD.gn components/BUILD.gn \
-		|| die "Failed to remove dependencies on bad target"
 
 	if use system-toolchain; then
 		# The patchset is really only required if we're using the system-toolchain
 		PATCHES+=( "${WORKDIR}/chromium-patches-${PATCH_V}" )
-		# We can't use the bundled compiler builtins
-		sed -i -e \
-			"/if (is_clang && toolchain_has_rust) {/,+2d" \
-			build/config/compiler/BUILD.gn || die "Failed to disable bundled compiler builtins"
+		# We can't use the bundled compiler builtins with the system toolchain
+		# `grep` is a development convenience to ensure we fail early when google changes something.
+		local builtins_match="if (is_clang && !is_nacl && !is_cronet_build) {"
+		grep -q "${builtins_match}" build/config/compiler/BUILD.gn || die "Failed to disable bundled compiler builtins"
+		sed -i -e "/${builtins_match}/,+2d" build/config/compiler/BUILD.gn
+
 	else
 		mkdir -p third_party/llvm-build/Release+Asserts || die "Failed to bundle llvm"
 		ln -s "${WORKDIR}"/bin third_party/llvm-build/Release+Asserts/bin || die "Failed to symlink llvm bin"
@@ -650,7 +560,6 @@ src_prepare() {
 		third_party/libsecret
 		third_party/libsrtp
 		third_party/libsync
-		third_party/libudev
 		third_party/liburlpattern
 		third_party/libva_protected_content
 		third_party/libvpx
@@ -704,6 +613,7 @@ src_prepare() {
 		third_party/pyjson5
 		third_party/pyyaml
 		third_party/qcms
+		third_party/rapidhash
 		third_party/re2
 		third_party/rnnoise
 		third_party/rust
@@ -888,23 +798,15 @@ chromium_configure() {
 		# rust_bindgen_root = directory with `bin/bindgen` beneath it.
 		myconf_gn+=" rust_bindgen_root=\"${EPREFIX}/usr/\""
 
-		# from get_llvm_prefix
-		local prefix=${ESYSROOT}
-		[[ ${1} == -b ]] && prefix=${BROOT}
-		myconf_gn+=" bindgen_libclang_path=\"${prefix}/usr/lib/llvm/${LLVM_SLOT}/$(get_libdir)\""
+		myconf_gn+=" bindgen_libclang_path=\"$(get_llvm_prefix)/$(get_libdir)\""
 		# We don't need to set 'clang_base_bath' for anything in our build
 		# and it defaults to the google toolchain location. Instead provide a location
 		# to where system clang lives sot that bindgen can find system headers (e.g. stddef.h)
 		myconf_gn+=" clang_base_path=\"${EPREFIX}/usr/lib/clang/${LLVM_SLOT}/\""
 
 		# We need to provide this to GN in both the path to rust _and_ the version
-		local rustc_ver=$(chromium_extract_rust_version)
-		if [[ "$(eselect --brief rust show 2>/dev/null)" == *"bin"* ]]; then
-				myconf_gn+=" rust_sysroot_absolute=\"${EPREFIX}/opt/rust-bin-${rustc_ver}/\""
-		else
-				myconf_gn+=" rust_sysroot_absolute=\"${EPREFIX}/usr/lib/rust/${rustc_ver}/\""
-		fi
-		myconf_gn+=" rustc_version=\"${rustc_ver}\""
+		myconf_gn+=" rust_sysroot_absolute=\"$(get_rust_prefix)\""
+		myconf_gn+=" rustc_version=\"${RUST_SLOT}\""
 	fi
 
 	# GN needs explicit config for Debug/Release as opposed to inferring it from build directory.
@@ -1167,6 +1069,8 @@ chromium_configure() {
 		sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 			tools/generate_shim_headers/generate_shim_headers.py || die
 		# Req's LTO; TODO: not compatible with -fno-split-lto-unit
+		# split-lto-unit can be enabled with RUSTC_BOOTSTRAP=1 (and an updated compiler patch),
+		# however I still got weird linking errors with CFI _and_ the split unit LTO OOMed after using 100G.
 		myconf_gn+=" is_cfi=false"
 		# Don't add symbols to build
 		myconf_gn+=" symbol_level=0"
