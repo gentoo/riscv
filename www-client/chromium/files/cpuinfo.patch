@@ -1,7 +1,8 @@
-diff -Naur a/third_party/cpuinfo/BUILD.gn b/third_party/cpuinfo/BUILD.gn
---- a/third_party/cpuinfo/BUILD.gn	2024-03-16 09:54:46.809862047 +0000
-+++ b/third_party/cpuinfo/BUILD.gn	2024-03-16 10:00:01.616932065 +0000
-@@ -123,6 +123,12 @@
+Index: chromium-129.0.6668.58/third_party/cpuinfo/BUILD.gn
+===================================================================
+--- chromium-129.0.6668.58.orig/third_party/cpuinfo/BUILD.gn
++++ chromium-129.0.6668.58/third_party/cpuinfo/BUILD.gn
+@@ -105,6 +105,12 @@ source_set("cpu_specific") {
      ]
    }
  
@@ -14,18 +15,19 @@ diff -Naur a/third_party/cpuinfo/BUILD.gn b/third_party/cpuinfo/BUILD.gn
    # Because "init.c" is reused again, but only has sources in the corresponding
    # build config.
    deps = [ ":x86_cache" ]
-@@ -190,6 +196,14 @@
-     ]
+@@ -191,6 +197,14 @@ source_set("cpu_and_os_specific") {
+     }
    }
  
-+  if ((is_linux || is_chromeos) && current_cpu == "riscv64") {
++  if (is_linux && current_cpu == "riscv64") {
 +    sources = [
-+      "src/src/riscv/linux/api.h",
 +      "src/src/riscv/linux/init.c",
 +      "src/src/riscv/linux/riscv-hw.c",
 +      "src/src/riscv/linux/riscv-isa.c",
 +    ]
 +  }
-   if (is_android && (current_cpu == "arm" || current_cpu == "arm64")) {
++
+   if (is_android && (current_cpu == "x86" || current_cpu == "x64")) {
      sources = [
-       "src/src/arm/android/properties.c",
+       "src/src/x86/linux/cpuinfo.c",
+
