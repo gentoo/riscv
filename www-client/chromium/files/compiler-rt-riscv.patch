@@ -1,0 +1,23 @@
+--- a/build/config/clang/BUILD.gn	2024-09-17 09:40:39.225707556 +0200
++++ b/build/config/clang/BUILD.gn	2024-09-17 09:42:35.703531635 +0200
+@@ -186,6 +186,9 @@
+         } else if (current_cpu == "arm64") {
+           _dir = "aarch64-unknown-linux-gnu"
+           _suffix = "-aarch64"
++        } else if (current_cpu == "riscv64") {
++          _dir = "riscv64-unknown-linux-gnu"
++          _suffix = "-riscv64"
+         } else {
+           assert(false)  # Unhandled cpu type
+         }
+@@ -201,6 +201,8 @@
+           _dir = "armv7-unknown-linux-gnueabihf"
+         } else if (current_cpu == "arm64") {
+           _dir = "aarch64-unknown-linux-gnu"
++        } else if (current_cpu == "riscv64") {
++          _dir = "riscv64-unknown-linux-gnu"
+         } else {
+           assert(false)  # Unhandled cpu type
+         }
+
+

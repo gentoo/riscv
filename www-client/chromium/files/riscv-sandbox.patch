@@ -1,7 +1,7 @@
-Index: chromium-130.0.6723.58/sandbox/features.gni
+Index: chromium-132.0.6834.83/sandbox/features.gni
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/features.gni
-+++ chromium-130.0.6723.58/sandbox/features.gni
+--- chromium-132.0.6834.83.orig/sandbox/features.gni
++++ chromium-132.0.6834.83/sandbox/features.gni
 @@ -9,7 +9,8 @@
  use_seccomp_bpf = (is_linux || is_chromeos || is_android) &&
                    (current_cpu == "x86" || current_cpu == "x64" ||
@@ -12,10 +12,10 @@ Index: chromium-130.0.6723.58/sandbox/features.gni
  
  # SSBD (Speculative Store Bypass Disable) is a mitigation of Spectre Variant 4.
  # As Spectre Variant 4 can be mitigated by site isolation, opt-out SSBD on site
-Index: chromium-130.0.6723.58/sandbox/linux/bpf_dsl/linux_syscall_ranges.h
+Index: chromium-132.0.6834.83/sandbox/linux/bpf_dsl/linux_syscall_ranges.h
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/bpf_dsl/linux_syscall_ranges.h
-+++ chromium-130.0.6723.58/sandbox/linux/bpf_dsl/linux_syscall_ranges.h
+--- chromium-132.0.6834.83.orig/sandbox/linux/bpf_dsl/linux_syscall_ranges.h
++++ chromium-132.0.6834.83/sandbox/linux/bpf_dsl/linux_syscall_ranges.h
 @@ -56,6 +56,12 @@
  #define MAX_PUBLIC_SYSCALL __NR_syscalls
  #define MAX_SYSCALL MAX_PUBLIC_SYSCALL
@@ -29,10 +29,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/bpf_dsl/linux_syscall_ranges.h
  #else
  #error "Unsupported architecture"
  #endif
-Index: chromium-130.0.6723.58/sandbox/linux/bpf_dsl/seccomp_macros.h
+Index: chromium-132.0.6834.83/sandbox/linux/bpf_dsl/seccomp_macros.h
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/bpf_dsl/seccomp_macros.h
-+++ chromium-130.0.6723.58/sandbox/linux/bpf_dsl/seccomp_macros.h
+--- chromium-132.0.6834.83.orig/sandbox/linux/bpf_dsl/seccomp_macros.h
++++ chromium-132.0.6834.83/sandbox/linux/bpf_dsl/seccomp_macros.h
 @@ -343,6 +343,48 @@ struct regs_struct {
  #define SECCOMP_PT_PARM4(_regs) (_regs).regs[3]
  #define SECCOMP_PT_PARM5(_regs) (_regs).regs[4]
@@ -82,10 +82,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/bpf_dsl/seccomp_macros.h
  #else
  #error Unsupported target platform
  
-Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
+Index: chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
-+++ chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
+--- chromium-132.0.6834.83.orig/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
++++ chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/baseline_policy.cc
 @@ -60,6 +60,9 @@ bool IsBaselinePolicyAllowed(int sysno)
  #if defined(__mips__)
           SyscallSets::IsMipsPrivate(sysno) ||
@@ -132,10 +132,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/baseline_policy.
    if (sysno == __NR_pipe) {
      return Allow();
    }
-Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
+Index: chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
-+++ chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
+--- chromium-132.0.6834.83.orig/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
++++ chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
 @@ -37,6 +37,7 @@
  
  #if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS_LACROS)) && \
@@ -144,7 +144,7 @@ Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_paramete
      !defined(PTRACE_GET_THREAD_AREA)
  // Also include asm/ptrace-abi.h since ptrace.h in older libc (for instance
  // the one in Ubuntu 16.04 LTS) is missing PTRACE_GET_THREAD_AREA.
-@@ -463,8 +464,10 @@ ResultExpr RestrictPtrace() {
+@@ -461,8 +462,10 @@ ResultExpr RestrictPtrace() {
  #endif
    return Switch(request)
        .Cases({
@@ -156,10 +156,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_paramete
                   PTRACE_GETREGSET,
  #endif
  #if defined(__arm__)
-Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
+Index: chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
-+++ chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
+--- chromium-132.0.6834.83.orig/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
++++ chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
 @@ -103,7 +103,7 @@ bool SyscallSets::IsUmask(int sysno) {
  // Both EPERM and ENOENT are valid errno unless otherwise noted in comment.
  bool SyscallSets::IsFileSystem(int sysno) {
@@ -416,10 +416,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
  bool SyscallSets::IsGoogle3Threading(int sysno) {
    switch (sysno) {
      case __NR_getitimer:
-Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
+Index: chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
-+++ chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
+--- chromium-132.0.6834.83.orig/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
++++ chromium-132.0.6834.83/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
 @@ -52,7 +52,7 @@ class SANDBOX_EXPORT SyscallSets {
  #endif
  
@@ -464,10 +464,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf-helpers/syscall_sets.h
    static bool IsGoogle3Threading(int sysno);
  };
  
-Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf/syscall.cc
+Index: chromium-132.0.6834.83/sandbox/linux/seccomp-bpf/syscall.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/seccomp-bpf/syscall.cc
-+++ chromium-130.0.6723.58/sandbox/linux/seccomp-bpf/syscall.cc
+--- chromium-132.0.6834.83.orig/sandbox/linux/seccomp-bpf/syscall.cc
++++ chromium-132.0.6834.83/sandbox/linux/seccomp-bpf/syscall.cc
 @@ -23,7 +23,7 @@ namespace sandbox {
  namespace {
  
@@ -537,10 +537,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/seccomp-bpf/syscall.cc
  #else
  #error "Unimplemented architecture"
  #endif
-Index: chromium-130.0.6723.58/sandbox/linux/services/credentials.cc
+Index: chromium-132.0.6834.83/sandbox/linux/services/credentials.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/services/credentials.cc
-+++ chromium-130.0.6723.58/sandbox/linux/services/credentials.cc
+--- chromium-132.0.6834.83.orig/sandbox/linux/services/credentials.cc
++++ chromium-132.0.6834.83/sandbox/linux/services/credentials.cc
 @@ -87,7 +87,7 @@ bool ChrootToSafeEmptyDir() {
    alignas(16) char stack_buf[PTHREAD_STACK_MIN_CONST];
  
@@ -550,10 +550,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/services/credentials.cc
    // The stack grows downward.
    void* stack = stack_buf + sizeof(stack_buf);
  #else
-Index: chromium-130.0.6723.58/sandbox/linux/services/syscall_wrappers.cc
+Index: chromium-132.0.6834.83/sandbox/linux/services/syscall_wrappers.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/services/syscall_wrappers.cc
-+++ chromium-130.0.6723.58/sandbox/linux/services/syscall_wrappers.cc
+--- chromium-132.0.6834.83.orig/sandbox/linux/services/syscall_wrappers.cc
++++ chromium-132.0.6834.83/sandbox/linux/services/syscall_wrappers.cc
 @@ -61,7 +61,7 @@ long sys_clone(unsigned long flags,
  #if defined(ARCH_CPU_X86_64)
    return syscall(__NR_clone, flags, child_stack, ptid, ctid, tls);
@@ -563,11 +563,11 @@ Index: chromium-130.0.6723.58/sandbox/linux/services/syscall_wrappers.cc
    // CONFIG_CLONE_BACKWARDS defined.
    return syscall(__NR_clone, flags, child_stack, ptid, tls, ctid);
  #endif
-Index: chromium-130.0.6723.58/sandbox/linux/syscall_broker/broker_process.cc
+Index: chromium-132.0.6834.83/sandbox/linux/syscall_broker/broker_process.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/syscall_broker/broker_process.cc
-+++ chromium-130.0.6723.58/sandbox/linux/syscall_broker/broker_process.cc
-@@ -122,44 +122,46 @@ bool BrokerProcess::IsSyscallBrokerable(
+--- chromium-132.0.6834.83.orig/sandbox/linux/syscall_broker/broker_process.cc
++++ chromium-132.0.6834.83/sandbox/linux/syscall_broker/broker_process.cc
+@@ -121,44 +121,46 @@ bool BrokerProcess::IsSyscallBrokerable(
    // and are default disabled in Android. So, we should refuse to broker them
    // to be consistent with the platform's restrictions.
    switch (sysno) {
@@ -621,7 +621,7 @@ Index: chromium-130.0.6723.58/sandbox/linux/syscall_broker/broker_process.cc
      case __NR_stat:
      case __NR_lstat:
  #endif
-@@ -169,7 +171,7 @@ bool BrokerProcess::IsSyscallBrokerable(
+@@ -168,7 +170,7 @@ bool BrokerProcess::IsSyscallBrokerable(
  #if defined(__NR_fstatat64)
      case __NR_fstatat64:
  #endif
@@ -630,7 +630,7 @@ Index: chromium-130.0.6723.58/sandbox/linux/syscall_broker/broker_process.cc
      case __NR_newfstatat:
  #endif
        return !fast_check || policy_->allowed_command_set.test(COMMAND_STAT);
-@@ -184,7 +186,7 @@ bool BrokerProcess::IsSyscallBrokerable(
+@@ -183,7 +185,7 @@ bool BrokerProcess::IsSyscallBrokerable(
        return !fast_check || policy_->allowed_command_set.test(COMMAND_STAT);
  #endif
  
@@ -639,10 +639,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/syscall_broker/broker_process.cc
      case __NR_unlink:
        return !fast_check || policy_->allowed_command_set.test(COMMAND_UNLINK);
  #endif
-Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_seccomp.h
+Index: chromium-132.0.6834.83/sandbox/linux/system_headers/linux_seccomp.h
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/system_headers/linux_seccomp.h
-+++ chromium-130.0.6723.58/sandbox/linux/system_headers/linux_seccomp.h
+--- chromium-132.0.6834.83.orig/sandbox/linux/system_headers/linux_seccomp.h
++++ chromium-132.0.6834.83/sandbox/linux/system_headers/linux_seccomp.h
 @@ -39,6 +39,10 @@
  #define EM_AARCH64 183
  #endif
@@ -665,10 +665,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_seccomp.h
  // For prctl.h
  #ifndef PR_SET_SECCOMP
  #define PR_SET_SECCOMP               22
-Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_signal.h
+Index: chromium-132.0.6834.83/sandbox/linux/system_headers/linux_signal.h
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/system_headers/linux_signal.h
-+++ chromium-130.0.6723.58/sandbox/linux/system_headers/linux_signal.h
+--- chromium-132.0.6834.83.orig/sandbox/linux/system_headers/linux_signal.h
++++ chromium-132.0.6834.83/sandbox/linux/system_headers/linux_signal.h
 @@ -13,7 +13,7 @@
  // (not undefined, but defined different values and in different memory
  // layouts). So, fill the gap here.
@@ -678,10 +678,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_signal.h
  
  #define LINUX_SIGHUP 1
  #define LINUX_SIGINT 2
-Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_stat.h
+Index: chromium-132.0.6834.83/sandbox/linux/system_headers/linux_stat.h
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/system_headers/linux_stat.h
-+++ chromium-130.0.6723.58/sandbox/linux/system_headers/linux_stat.h
+--- chromium-132.0.6834.83.orig/sandbox/linux/system_headers/linux_stat.h
++++ chromium-132.0.6834.83/sandbox/linux/system_headers/linux_stat.h
 @@ -150,7 +150,7 @@ struct kernel_stat {
    int st_blocks;
    int st_pad4[14];
@@ -691,10 +691,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_stat.h
  struct kernel_stat {
    unsigned long st_dev;
    unsigned long st_ino;
-Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_syscalls.h
+Index: chromium-132.0.6834.83/sandbox/linux/system_headers/linux_syscalls.h
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/linux/system_headers/linux_syscalls.h
-+++ chromium-130.0.6723.58/sandbox/linux/system_headers/linux_syscalls.h
+--- chromium-132.0.6834.83.orig/sandbox/linux/system_headers/linux_syscalls.h
++++ chromium-132.0.6834.83/sandbox/linux/system_headers/linux_syscalls.h
 @@ -35,5 +35,9 @@
  #include "sandbox/linux/system_headers/arm64_linux_syscalls.h"
  #endif
@@ -705,10 +705,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/system_headers/linux_syscalls.h
 +
  #endif  // SANDBOX_LINUX_SYSTEM_HEADERS_LINUX_SYSCALLS_H_
  
-Index: chromium-130.0.6723.58/sandbox/linux/system_headers/riscv64_linux_syscalls.h
+Index: chromium-132.0.6834.83/sandbox/linux/system_headers/riscv64_linux_syscalls.h
 ===================================================================
 --- /dev/null
-+++ chromium-130.0.6723.58/sandbox/linux/system_headers/riscv64_linux_syscalls.h
++++ chromium-132.0.6834.83/sandbox/linux/system_headers/riscv64_linux_syscalls.h
 @@ -0,0 +1,1226 @@
 +// Copyright 2014 The Chromium Authors
 +// Use of this source code is governed by a BSD-style license that can be
@@ -1936,10 +1936,10 @@ Index: chromium-130.0.6723.58/sandbox/linux/system_headers/riscv64_linux_syscall
 +#endif
 +
 +#endif  // SANDBOX_LINUX_SYSTEM_HEADERS_RISCV64_LINUX_SYSCALLS_H_
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_cdm_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_cdm_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_cdm_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_cdm_policy_linux.cc
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_cdm_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_cdm_policy_linux.cc
 @@ -33,7 +33,7 @@ ResultExpr CdmProcessPolicy::EvaluateSys
      case __NR_ftruncate:
      case __NR_fallocate:
@@ -1949,10 +1949,10 @@ Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_cdm_policy_linux.cc
      case __NR_getrlimit:
  #endif
  #if defined(__i386__) || defined(__arm__)
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_cros_amd_gpu_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_cros_amd_gpu_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_cros_amd_gpu_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_cros_amd_gpu_policy_linux.cc
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_cros_amd_gpu_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_cros_amd_gpu_policy_linux.cc
 @@ -38,7 +38,7 @@ ResultExpr CrosAmdGpuProcessPolicy::Eval
      case __NR_sched_setscheduler:
      case __NR_sysinfo:
@@ -1962,10 +1962,10 @@ Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_cros_amd_gpu_policy_linux
      case __NR_readlink:
      case __NR_stat:
  #endif
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_gpu_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_gpu_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_gpu_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_gpu_policy_linux.cc
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_gpu_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_gpu_policy_linux.cc
 @@ -73,7 +73,7 @@ ResultExpr GpuProcessPolicy::EvaluateSys
      (defined(ARCH_CPU_MIPS_FAMILY) && defined(ARCH_CPU_32_BITS))
      case __NR_ftruncate64:
@@ -1975,10 +1975,10 @@ Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_gpu_policy_linux.cc
      case __NR_getdents:
  #endif
      case __NR_getdents64:
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_network_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_network_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_network_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_network_policy_linux.cc
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_network_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_network_policy_linux.cc
 @@ -260,7 +260,7 @@ ResultExpr NetworkProcessPolicy::Evaluat
      case __NR_fdatasync:
      case __NR_fsync:
@@ -1988,10 +1988,10 @@ Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_network_policy_linux.cc
      case __NR_getdents:
  #endif
      case __NR_getdents64:
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_print_compositor_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_print_compositor_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_print_compositor_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_print_compositor_policy_linux.cc
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_print_compositor_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_print_compositor_policy_linux.cc
 @@ -33,7 +33,7 @@ ResultExpr PrintCompositorProcessPolicy:
      case __NR_fdatasync:
      case __NR_fsync:
@@ -2001,11 +2001,11 @@ Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_print_compositor_policy_l
      case __NR_getrlimit:
  #endif
  #if defined(__i386__) || defined(__arm__)
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_renderer_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_renderer_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-@@ -82,7 +82,7 @@ ResultExpr RendererProcessPolicy::Evalua
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_renderer_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_renderer_policy_linux.cc
+@@ -85,7 +85,7 @@ ResultExpr RendererProcessPolicy::Evalua
      case __NR_ftruncate64:
  #endif
  #if defined(__i386__) || defined(__x86_64__) || defined(__mips__) || \
@@ -2014,10 +2014,10 @@ Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_renderer_policy_linux.cc
      case __NR_getrlimit:
      case __NR_setrlimit:
  // We allow setrlimit to dynamically adjust the address space limit as
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_service_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_service_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_service_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_service_policy_linux.cc
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_service_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_service_policy_linux.cc
 @@ -26,7 +26,7 @@ ResultExpr ServiceProcessPolicy::Evaluat
        return RestrictIoctl();
        // Allow the system calls below.
@@ -2027,10 +2027,10 @@ Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_service_policy_linux.cc
      case __NR_getrlimit:
  #endif
  #if defined(__i386__) || defined(__arm__)
-Index: chromium-130.0.6723.58/sandbox/policy/linux/bpf_utility_policy_linux.cc
+Index: chromium-132.0.6834.83/sandbox/policy/linux/bpf_utility_policy_linux.cc
 ===================================================================
---- chromium-130.0.6723.58.orig/sandbox/policy/linux/bpf_utility_policy_linux.cc
-+++ chromium-130.0.6723.58/sandbox/policy/linux/bpf_utility_policy_linux.cc
+--- chromium-132.0.6834.83.orig/sandbox/policy/linux/bpf_utility_policy_linux.cc
++++ chromium-132.0.6834.83/sandbox/policy/linux/bpf_utility_policy_linux.cc
 @@ -34,7 +34,7 @@ ResultExpr UtilityProcessPolicy::Evaluat
      case __NR_fdatasync:
      case __NR_fsync:

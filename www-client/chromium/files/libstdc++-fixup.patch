@@ -1,0 +1,219 @@
+Index: chromium-132.0.6834.83/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
+===================================================================
+--- chromium-132.0.6834.83.orig/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
++++ chromium-132.0.6834.83/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
+@@ -5,6 +5,8 @@
+ #ifndef CHROME_BROWSER_UI_LENS_LENS_OVERLAY_REQUEST_ID_GENERATOR_H_
+ #define CHROME_BROWSER_UI_LENS_LENS_OVERLAY_REQUEST_ID_GENERATOR_H_
+ 
++#include <optional>
++
+ #include "third_party/lens_server_proto/lens_overlay_routing_info.pb.h"
+ #include "third_party/lens_server_proto/lens_overlay_server.pb.h"
+ #include "third_party/lens_server_proto/lens_overlay_service_deps.pb.h"
+Index: chromium-132.0.6834.83/components/sync/service/local_data_description.h
+===================================================================
+--- chromium-132.0.6834.83.orig/components/sync/service/local_data_description.h
++++ chromium-132.0.6834.83/components/sync/service/local_data_description.h
+@@ -6,6 +6,7 @@
+ #define COMPONENTS_SYNC_SERVICE_LOCAL_DATA_DESCRIPTION_H_
+ 
+ #include <string>
++#include <variant>
+ #include <vector>
+ 
+ #include "components/sync/base/data_type.h"
+Index: chromium-132.0.6834.83/components/variations/limited_layer_entropy_cost_tracker.h
+===================================================================
+--- chromium-132.0.6834.83.orig/components/variations/limited_layer_entropy_cost_tracker.h
++++ chromium-132.0.6834.83/components/variations/limited_layer_entropy_cost_tracker.h
+@@ -5,6 +5,7 @@
+ #ifndef COMPONENTS_VARIATIONS_LIMITED_LAYER_ENTROPY_COST_TRACKER_H_
+ #define COMPONENTS_VARIATIONS_LIMITED_LAYER_ENTROPY_COST_TRACKER_H_
+ 
++#include <cstdint>
+ #include <map>
+ #include <set>
+ 
+Index: chromium-132.0.6834.83/components/viz/service/display/surface_aggregator.h
+===================================================================
+--- chromium-132.0.6834.83.orig/components/viz/service/display/surface_aggregator.h
++++ chromium-132.0.6834.83/components/viz/service/display/surface_aggregator.h
+@@ -132,13 +132,18 @@ class VIZ_SERVICE_EXPORT SurfaceAggregat
+   struct PrewalkResult;
+ 
+   struct AggregateStatistics {
+-    int prewalked_surface_count = 0;
+-    int copied_surface_count = 0;
++    AggregateStatistics()
++      : prewalked_surface_count(0),
++	copied_surface_count(0),
++	has_pixel_moving_filter(false),
++	has_unembedded_pass(false) {}
++    int prewalked_surface_count;
++    int copied_surface_count;
+     // True if the current frame contains a pixel-moving foreground filter
+     // render pass.
+-    bool has_pixel_moving_filter = false;
++    bool has_pixel_moving_filter;
+     // True if the current frame contains a unembedded render pass.
+-    bool has_unembedded_pass = false;
++    bool has_unembedded_pass;
+ 
+     base::TimeDelta prewalk_time;
+     base::TimeDelta copy_time;
+Index: chromium-132.0.6834.83/gpu/command_buffer/service/shared_image/shared_image_backing.h
+===================================================================
+--- chromium-132.0.6834.83.orig/gpu/command_buffer/service/shared_image/shared_image_backing.h
++++ chromium-132.0.6834.83/gpu/command_buffer/service/shared_image/shared_image_backing.h
+@@ -389,7 +389,7 @@ class GPU_GLES2_EXPORT SharedImageBackin
+  private:
+   class ScopedWriteUMA {
+    public:
+-    ScopedWriteUMA() = default;
++    ScopedWriteUMA() : content_consumed_(false) {}
+ 
+     ScopedWriteUMA(const ScopedWriteUMA&) = delete;
+     ScopedWriteUMA& operator=(const ScopedWriteUMA&) = delete;
+@@ -403,7 +403,7 @@ class GPU_GLES2_EXPORT SharedImageBackin
+     void SetConsumed() { content_consumed_ = true; }
+ 
+    private:
+-    bool content_consumed_ = false;
++    bool content_consumed_;
+   };
+ 
+   const Mailbox mailbox_;
+Index: chromium-132.0.6834.83/mojo/public/cpp/bindings/lib/multiplex_router.h
+===================================================================
+--- chromium-132.0.6834.83.orig/mojo/public/cpp/bindings/lib/multiplex_router.h
++++ chromium-132.0.6834.83/mojo/public/cpp/bindings/lib/multiplex_router.h
+@@ -315,8 +315,9 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS
+   // are not managed by the MultiplexRouter and thus are not relevant here.
+   struct ExclusiveSyncWaitInfo {
+     InterfaceId interface_id = kInvalidInterfaceId;
+-    uint64_t request_id = 0;
+-    bool finished = false;
++    uint64_t request_id;
++    bool finished;
++    ExclusiveSyncWaitInfo() : request_id(0), finished(false) {}
+   };
+   std::optional<ExclusiveSyncWaitInfo> exclusive_sync_wait_;
+ 
+Index: chromium-132.0.6834.83/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
+===================================================================
+--- chromium-132.0.6834.83.orig/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
++++ chromium-132.0.6834.83/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
+@@ -885,8 +885,9 @@ class CORE_EXPORT PaintLayerScrollableAr
+ 
+   struct PendingViewState {
+     HistoryItem::ViewState state;
+-    mojom::blink::ScrollBehavior scroll_behavior =
+-        mojom::blink::ScrollBehavior::kAuto;
++    mojom::blink::ScrollBehavior scroll_behavior;
++    PendingViewState()
++      : scroll_behavior(mojom::blink::ScrollBehavior::kAuto) {}
+   };
+   std::optional<PendingViewState> pending_view_state_;
+ };
+Index: chromium-132.0.6834.83/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
+===================================================================
+--- chromium-132.0.6834.83.orig/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
++++ chromium-132.0.6834.83/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
+@@ -51,7 +51,8 @@ class MediaControlTimelineElement : publ
+   // Struct used to track the current live time.
+   struct LiveAnchorTime {
+     base::TimeTicks clock_time_;
+-    double media_time_ = 0;
++    double media_time_;
++    LiveAnchorTime() : media_time_(0) {}
+   };
+ 
+   void DefaultEventHandler(Event&) override;
+Index: chromium-132.0.6834.83/third_party/ink/src/ink/brush/brush_paint.cc
+===================================================================
+--- chromium-132.0.6834.83.orig/third_party/ink/src/ink/brush/brush_paint.cc
++++ chromium-132.0.6834.83/third_party/ink/src/ink/brush/brush_paint.cc
+@@ -84,7 +84,7 @@ absl::Status ValidateBrushPaintTextureKe
+         keyframe.progress));
+   }
+   if (keyframe.size.has_value()) {
+-    if (!isfinite(keyframe.size->x) || !isfinite(keyframe.size->y) ||
++    if (!std::isfinite(keyframe.size->x) || !std::isfinite(keyframe.size->y) ||
+         keyframe.size->x <= 0 || keyframe.size->y <= 0) {
+       return absl::InvalidArgumentError(
+           absl::StrFormat("`BrushPaint::TextureKeyframe::size` components must "
+@@ -102,7 +102,7 @@ absl::Status ValidateBrushPaintTextureKe
+     }
+   }
+   if (keyframe.rotation.has_value()) {
+-    if (!isfinite(keyframe.rotation->ValueInRadians())) {
++    if (!std::isfinite(keyframe.rotation->ValueInRadians())) {
+       return absl::InvalidArgumentError(
+           absl::StrFormat("`BrushPaint::TextureKeyframe::rotation` must be "
+                           "finite. Got %v",
+@@ -159,7 +159,7 @@ absl::Status ValidateBrushPaintTextureLa
+                         "interval [0, 1]. Got %v",
+                         layer.offset));
+   }
+-  if (!isfinite(layer.rotation.ValueInRadians())) {
++  if (!std::isfinite(layer.rotation.ValueInRadians())) {
+     return absl::InvalidArgumentError(
+         absl::StrFormat("`BrushPaint::TextureLayer::rotation` must be finite. "
+                         "Got %v",
+@@ -179,7 +179,7 @@ absl::Status ValidateBrushPaintTextureLa
+         "interval [0, 1]. Got %v",
+         layer.offset_jitter));
+   }
+-  if (!isfinite(layer.rotation_jitter.ValueInRadians())) {
++  if (!std::isfinite(layer.rotation_jitter.ValueInRadians())) {
+     return absl::InvalidArgumentError(absl::StrFormat(
+         "`BrushPaint::TextureLayer::rotation_jitter` must be finite. "
+         "Got %v",
+Index: chromium-132.0.6834.83/third_party/ruy/src/ruy/profiler/instrumentation.h
+===================================================================
+--- chromium-132.0.6834.83.orig/third_party/ruy/src/ruy/profiler/instrumentation.h
++++ chromium-132.0.6834.83/third_party/ruy/src/ruy/profiler/instrumentation.h
+@@ -18,7 +18,9 @@ limitations under the License.
+ 
+ #ifdef RUY_PROFILER
+ #include <cstdio>
++#include <cstdlib>
+ #include <mutex>
++#include <string>
+ #include <vector>
+ #endif
+ 
+Index: chromium-132.0.6834.83/third_party/webrtc/call/rtp_config.h
+===================================================================
+--- chromium-132.0.6834.83.orig/third_party/webrtc/call/rtp_config.h
++++ chromium-132.0.6834.83/third_party/webrtc/call/rtp_config.h
+@@ -79,10 +79,12 @@ struct RtpStreamConfig {
+   struct Rtx {
+     std::string ToString() const;
+     // SSRC to use for the RTX stream.
+-    uint32_t ssrc = 0;
++    uint32_t ssrc;
+ 
+     // Payload type to use for the RTX stream.
+-    int payload_type = -1;
++    int payload_type;
++
++    Rtx() : ssrc(0), payload_type(-1) {}
+   };
+   std::optional<Rtx> rtx;
+ };
+Index: chromium-132.0.6834.83/third_party/webrtc/rtc_base/ssl_stream_adapter.h
+===================================================================
+--- chromium-132.0.6834.83.orig/third_party/webrtc/rtc_base/ssl_stream_adapter.h
++++ chromium-132.0.6834.83/third_party/webrtc/rtc_base/ssl_stream_adapter.h
+@@ -15,6 +15,7 @@
+ #include <stdint.h>
+ 
+ #include <memory>
++#include <optional>
+ #include <string>
+ #include <vector>
+ 
+ 
+
