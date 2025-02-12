@@ -1,7 +1,7 @@
-Index: chromium-132.0.6834.83/components/metrics/debug/metrics_internals_utils.cc
+Index: chromium-133.0.6943.53/components/metrics/debug/metrics_internals_utils.cc
 ===================================================================
---- chromium-132.0.6834.83.orig/components/metrics/debug/metrics_internals_utils.cc
-+++ chromium-132.0.6834.83/components/metrics/debug/metrics_internals_utils.cc
+--- chromium-133.0.6943.53.orig/components/metrics/debug/metrics_internals_utils.cc
++++ chromium-133.0.6943.53/components/metrics/debug/metrics_internals_utils.cc
 @@ -69,6 +69,8 @@ std::string CpuArchitectureToString(
        return "arm32";
      case variations::Study::TRANSLATED_X86_64:
@@ -11,10 +11,10 @@ Index: chromium-132.0.6834.83/components/metrics/debug/metrics_internals_utils.c
    }
    NOTREACHED();
  }
-Index: chromium-132.0.6834.83/components/variations/proto/study.proto
+Index: chromium-133.0.6943.53/components/variations/proto/study.proto
 ===================================================================
---- chromium-132.0.6834.83.orig/components/variations/proto/study.proto
-+++ chromium-132.0.6834.83/components/variations/proto/study.proto
+--- chromium-133.0.6943.53.orig/components/variations/proto/study.proto
++++ chromium-133.0.6943.53/components/variations/proto/study.proto
 @@ -262,6 +262,8 @@ message Study {
      // A Mac-only value, indicating an x86-64 binary running on an arm64 host
      // via "Rosetta 2" binary translation.
@@ -24,42 +24,18 @@ Index: chromium-132.0.6834.83/components/variations/proto/study.proto
    }
  
    // Enum to pass as optional bool.
-Index: chromium-132.0.6834.83/components/variations/service/variations_field_trial_creator_base.cc
+Index: chromium-133.0.6943.53/components/variations/service/variations_field_trial_creator_base.cc
 ===================================================================
---- chromium-132.0.6834.83.orig/components/variations/service/variations_field_trial_creator_base.cc
-+++ chromium-132.0.6834.83/components/variations/service/variations_field_trial_creator_base.cc
-@@ -121,6 +121,9 @@ Study::CpuArchitecture GetCurrentCpuArch
+--- chromium-133.0.6943.53.orig/components/variations/service/variations_field_trial_creator_base.cc
++++ chromium-133.0.6943.53/components/variations/service/variations_field_trial_creator_base.cc
+@@ -120,6 +120,9 @@ Study::CpuArchitecture GetCurrentCpuArch
      }
      return Study::X86_64;
    }
 +  if (process_arch == "RISCV_64") {
 +    return Study::RISCV64;
 +  }
-   NOTREACHED_IN_MIGRATION();
-   return Study::X86_64;
+   NOTREACHED();
  }
-Index: chromium-132.0.6834.83/v8/src/compiler/backend/riscv/code-generator-riscv.cc
-===================================================================
---- chromium-132.0.6834.83.orig/v8/src/compiler/backend/riscv/code-generator-riscv.cc
-+++ chromium-132.0.6834.83/v8/src/compiler/backend/riscv/code-generator-riscv.cc
-@@ -3742,12 +3742,20 @@ CodeGenerator::CodeGenResult CodeGenerat
-       break;
-     }
-     case kRiscvEnableDebugTrace: {
-+#ifdef USE_SIMULATOR
-       __ Debug(TRACE_ENABLE | LOG_TRACE | LOG_REGS);
-       break;
-+#else
-+      UNREACHABLE();
-+#endif
-     }
-     case kRiscvDisableDebugTrace: {
-+#ifdef USE_SIMULATOR
-       __ Debug(TRACE_DISABLE | LOG_TRACE | LOG_REGS);
-       break;
-+#else
-+      UNREACHABLE();
-+#endif
-     }
-     default:
- #ifdef DEBUG
+ 
+
