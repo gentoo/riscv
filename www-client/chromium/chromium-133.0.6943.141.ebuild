@@ -18,7 +18,7 @@ CHROMIUM_LANGS="af am ar bg bn ca cs da de el en-GB es es-419 et fa fi fil fr gu
 	hi hr hu id it ja kn ko lt lv ml mr ms nb nl pl pt-BR pt-PT ro ru sk sl sr
 	sv sw ta te th tr uk ur vi zh-CN zh-TW"
 
-LLVM_COMPAT=( 19 )
+LLVM_COMPAT=( 19 20 )
 PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="xml(+)"
 RUST_MIN_VER=1.78.0
@@ -182,7 +182,7 @@ BDEPEND="
 	)
 	>=dev-util/bindgen-0.68.0
 	>=dev-build/gn-${GN_MIN_VER}
-	dev-build/ninja
+	app-alternatives/ninja
 	dev-lang/perl
 	>=dev-util/gperf-3.0.3
 	dev-vcs/git
@@ -428,6 +428,14 @@ src_prepare() {
 	if ver_test ${RUST_SLOT} -le "1.82.0"; then
 		sed '/rustflags = \[ "-Zdefault-visibility=hidden" \]/d' -i build/config/gcc/BUILD.gn ||
 			die "Failed to remove default visibility nightly option"
+	fi
+
+	# Upstream Rust replaced adler with adler2, for never versions of Rust we still need
+	# to tell GN that we have adler2 when it tries to copy the Rust sysroot
+	# into the bulid directory.
+	if ver_test ${RUST_SLOT} -ge "1.86.0"; then
+		sed -i 's/adler/adler2/' build/rust/std/BUILD.gn ||
+			die "Failed to tell GN that we have adler and not adler2"
 	fi
 
 	default
