@@ -1,7 +1,7 @@
-ndex: chromium-133.0.6943.53/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
+ndex: chromium-134.0.6998.35/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
 ===================================================================
---- chromium-133.0.6943.53.orig/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
-+++ chromium-133.0.6943.53/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
+--- chromium-134.0.6998.35.orig/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
++++ chromium-134.0.6998.35/chrome/browser/ui/lens/lens_overlay_request_id_generator.h
 @@ -5,6 +5,8 @@
  #ifndef CHROME_BROWSER_UI_LENS_LENS_OVERLAY_REQUEST_ID_GENERATOR_H_
  #define CHROME_BROWSER_UI_LENS_LENS_OVERLAY_REQUEST_ID_GENERATOR_H_
@@ -11,10 +11,10 @@ ndex: chromium-133.0.6943.53/chrome/browser/ui/lens/lens_overlay_request_id_gene
  #include "third_party/lens_server_proto/lens_overlay_routing_info.pb.h"
  #include "third_party/lens_server_proto/lens_overlay_server.pb.h"
  #include "third_party/lens_server_proto/lens_overlay_service_deps.pb.h"
-Index: chromium-133.0.6943.53/components/payments/content/payment_method_manifest_table.h
+Index: chromium-134.0.6998.35/components/payments/content/payment_method_manifest_table.h
 ===================================================================
---- chromium-133.0.6943.53.orig/components/payments/content/payment_method_manifest_table.h
-+++ chromium-133.0.6943.53/components/payments/content/payment_method_manifest_table.h
+--- chromium-134.0.6998.35.orig/components/payments/content/payment_method_manifest_table.h
++++ chromium-134.0.6998.35/components/payments/content/payment_method_manifest_table.h
 @@ -6,6 +6,7 @@
  #define COMPONENTS_PAYMENTS_CONTENT_PAYMENT_METHOD_MANIFEST_TABLE_H_
  
@@ -23,10 +23,10 @@ Index: chromium-133.0.6943.53/components/payments/content/payment_method_manifes
  #include <string>
  #include <vector>
  
-Index: chromium-133.0.6943.53/components/viz/service/display/surface_aggregator.h
+Index: chromium-134.0.6998.35/components/viz/service/display/surface_aggregator.h
 ===================================================================
---- chromium-133.0.6943.53.orig/components/viz/service/display/surface_aggregator.h
-+++ chromium-133.0.6943.53/components/viz/service/display/surface_aggregator.h
+--- chromium-134.0.6998.35.orig/components/viz/service/display/surface_aggregator.h
++++ chromium-134.0.6998.35/components/viz/service/display/surface_aggregator.h
 @@ -132,13 +132,18 @@ class VIZ_SERVICE_EXPORT SurfaceAggregat
    struct PrewalkResult;
  
@@ -50,32 +50,10 @@ Index: chromium-133.0.6943.53/components/viz/service/display/surface_aggregator.
  
      base::TimeDelta prewalk_time;
      base::TimeDelta copy_time;
-Index: chromium-133.0.6943.53/gpu/command_buffer/service/shared_image/shared_image_backing.h
+Index: chromium-134.0.6998.35/mojo/public/cpp/bindings/lib/multiplex_router.h
 ===================================================================
---- chromium-133.0.6943.53.orig/gpu/command_buffer/service/shared_image/shared_image_backing.h
-+++ chromium-133.0.6943.53/gpu/command_buffer/service/shared_image/shared_image_backing.h
-@@ -394,7 +394,7 @@ class GPU_GLES2_EXPORT SharedImageBackin
-  private:
-   class ScopedWriteUMA {
-    public:
--    ScopedWriteUMA() = default;
-+    ScopedWriteUMA() : content_consumed_(false) {}
- 
-     ScopedWriteUMA(const ScopedWriteUMA&) = delete;
-     ScopedWriteUMA& operator=(const ScopedWriteUMA&) = delete;
-@@ -408,7 +408,7 @@ class GPU_GLES2_EXPORT SharedImageBackin
-     void SetConsumed() { content_consumed_ = true; }
- 
-    private:
--    bool content_consumed_ = false;
-+    bool content_consumed_;
-   };
- 
-   const Mailbox mailbox_;
-Index: chromium-133.0.6943.53/mojo/public/cpp/bindings/lib/multiplex_router.h
-===================================================================
---- chromium-133.0.6943.53.orig/mojo/public/cpp/bindings/lib/multiplex_router.h
-+++ chromium-133.0.6943.53/mojo/public/cpp/bindings/lib/multiplex_router.h
+--- chromium-134.0.6998.35.orig/mojo/public/cpp/bindings/lib/multiplex_router.h
++++ chromium-134.0.6998.35/mojo/public/cpp/bindings/lib/multiplex_router.h
 @@ -315,8 +315,9 @@ class COMPONENT_EXPORT(MOJO_CPP_BINDINGS
    // are not managed by the MultiplexRouter and thus are not relevant here.
    struct ExclusiveSyncWaitInfo {
@@ -88,11 +66,11 @@ Index: chromium-133.0.6943.53/mojo/public/cpp/bindings/lib/multiplex_router.h
    };
    std::optional<ExclusiveSyncWaitInfo> exclusive_sync_wait_;
  
-Index: chromium-133.0.6943.53/third_party/blink/renderer/core/layout/inline/line_breaker.h
+Index: chromium-134.0.6998.35/third_party/blink/renderer/core/layout/inline/line_breaker.h
 ===================================================================
---- chromium-133.0.6943.53.orig/third_party/blink/renderer/core/layout/inline/line_breaker.h
-+++ chromium-133.0.6943.53/third_party/blink/renderer/core/layout/inline/line_breaker.h
-@@ -445,9 +445,12 @@ class CORE_EXPORT LineBreaker {
+--- chromium-134.0.6998.35.orig/third_party/blink/renderer/core/layout/inline/line_breaker.h
++++ chromium-134.0.6998.35/third_party/blink/renderer/core/layout/inline/line_breaker.h
+@@ -451,9 +451,12 @@ class CORE_EXPORT LineBreaker {
      STACK_ALLOCATED();
  
     public:
@@ -108,11 +86,11 @@ Index: chromium-133.0.6943.53/third_party/blink/renderer/core/layout/inline/line
      // Ancestors of `item_result`. ancestor_ruby_columns[0] is the parent of
      // `item_result`, and ancestor_ruby_columns[n+1] is the parent of
      // ancestor_ruby_columns[n]. This list is empty if `item_result` is not
-Index: chromium-133.0.6943.53/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
+Index: chromium-134.0.6998.35/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
 ===================================================================
---- chromium-133.0.6943.53.orig/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
-+++ chromium-133.0.6943.53/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
-@@ -888,8 +888,9 @@ class CORE_EXPORT PaintLayerScrollableAr
+--- chromium-134.0.6998.35.orig/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
++++ chromium-134.0.6998.35/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h
+@@ -890,8 +890,9 @@ class CORE_EXPORT PaintLayerScrollableAr
  
    struct PendingViewState {
      HistoryItem::ViewState state;
@@ -124,10 +102,10 @@ Index: chromium-133.0.6943.53/third_party/blink/renderer/core/paint/paint_layer_
    };
    std::optional<PendingViewState> pending_view_state_;
  };
-Index: chromium-133.0.6943.53/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
+Index: chromium-134.0.6998.35/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
 ===================================================================
---- chromium-133.0.6943.53.orig/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
-+++ chromium-133.0.6943.53/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
+--- chromium-134.0.6998.35.orig/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
++++ chromium-134.0.6998.35/third_party/blink/renderer/modules/media_controls/elements/media_control_timeline_element.h
 @@ -51,7 +51,8 @@ class MediaControlTimelineElement : publ
    // Struct used to track the current live time.
    struct LiveAnchorTime {
@@ -138,10 +116,10 @@ Index: chromium-133.0.6943.53/third_party/blink/renderer/modules/media_controls/
    };
  
    void DefaultEventHandler(Event&) override;
-Index: chromium-133.0.6943.53/third_party/webrtc/call/rtp_config.h
+Index: chromium-134.0.6998.35/third_party/webrtc/call/rtp_config.h
 ===================================================================
---- chromium-133.0.6943.53.orig/third_party/webrtc/call/rtp_config.h
-+++ chromium-133.0.6943.53/third_party/webrtc/call/rtp_config.h
+--- chromium-134.0.6998.35.orig/third_party/webrtc/call/rtp_config.h
++++ chromium-134.0.6998.35/third_party/webrtc/call/rtp_config.h
 @@ -79,10 +79,12 @@ struct RtpStreamConfig {
    struct Rtx {
      std::string ToString() const;
@@ -157,5 +135,4 @@ Index: chromium-133.0.6943.53/third_party/webrtc/call/rtp_config.h
    };
    std::optional<Rtx> rtx;
  };
-
 
