@@ -22,7 +22,7 @@ EAPI=8
 # new "Distro tarballs" and include binaries (etc) that are not useful for
 # downstream consumers (like distributions).
 
-GN_MIN_VER=0.2207
+GN_MIN_VER=0.2217
 # chromium-tools/get-chromium-toolchain-strings.py
 TEST_FONT=f26f29c9d3bfae588207bbc9762de8d142e58935c62a86f67332819b15203b35
 BUNDLED_CLANG_VER=llvmorg-20-init-17108-g29ed6000-3
@@ -47,8 +47,8 @@ inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs virtualx xdg
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="https://www.chromium.org/"
-PPC64_HASH="7d1ac28278b5679d0b950ebd380bdd889b319592"
-PATCH_V="${PV%%\.*}-1"
+PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
+PATCH_V="${PV%%\.*}"
 SRC_URI="https://chromium-tarballs.distfiles.gentoo.org/${P}-linux.tar.xz
 	!bundled-toolchain? (
 		https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
@@ -73,7 +73,7 @@ SLOT="0/stable"
 # Dev exists mostly to give devs some breathing room for beta/stable releases;
 # it shouldn't be keyworded but adventurous users can select it.
 if [[ ${SLOT} != "0/dev" ]]; then
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv"
+	KEYWORDS="amd64 ~arm64 ~riscv"
 fi
 
 IUSE_SYSTEM_LIBS="+system-harfbuzz +system-icu +system-png +system-zstd"
@@ -409,10 +409,9 @@ src_prepare() {
 		"${FILESDIR}/chromium-109-system-zlib.patch"
 		"${FILESDIR}/chromium-111-InkDropHost-crash.patch"
 		"${FILESDIR}/chromium-131-unbundle-icu-target.patch"
-		"${FILESDIR}/chromium-134-map_droppable-glibc.patch"
-		"${FILESDIR}/chromium-134-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-134-bindgen-custom-toolchain.patch"
-		"${FILESDIR}/chromium-135-fix-non-wayland-build.patch"
+		"${FILESDIR}/chromium-135-oauth2-client-switches.patch"
+		"${FILESDIR}/chromium-135-map_droppable-glibc.patch"
         "${FILESDIR}/riscv-swiftshader.patch"
         "${FILESDIR}/Debian-fix-rust-linking.patch"
         "${FILESDIR}/riscv-dav1d.patch"
@@ -421,11 +420,10 @@ src_prepare() {
         "${FILESDIR}/compiler-rt-riscv.patch"
         "${FILESDIR}/cpuinfo.patch"
         "${FILESDIR}/riscv-misc.patch"
-        "${FILESDIR}/libstdc++-fixup.patch"
         "${FILESDIR}/chromium-134-type-mismatch-error.patch"
         "${FILESDIR}/0001-chrome-runtime_api_delegate-add-riscv64-define.patch"
         "${FILESDIR}/0001-extensions-common-api-runtime.json-riscv64-support.patch"
-        "${FILESDIR}/riscv-v8.patch"
+        "${FILESDIR}/fix-build-with-pipewire-1.3.82.patch"
 	)
 
 	if use bundled-toolchain; then
@@ -527,6 +525,25 @@ src_prepare() {
        third_party/node/update_npm_deps || die
        rm third_party/devtools-frontend/src/third_party/esbuild/esbuild || die
        cp -a ${FILESDIR}/esbuild third_party/devtools-frontend/src/third_party/esbuild/esbuild
+
+		pushd third_party/devtools-frontend/src
+		sed -i -e 's/@rollup/rollup/' -e "s/'wasm-node',//" scripts/devtools_paths.py
+		local _rollup_ver="$(jq -r .devDependencies.\"@rollup/wasm-node\" package.json)"
+		jq ".devDependencies.rollup=\"$_rollup_ver\" | .devDependencies.\"@rollup/rollup-linux-riscv64-gnu\"=\"$_rollup_ver\""  package.json > package.json.new
+		mv package.json{.new,}
+		# Chromium hosts a custom registry at https://npm.skia.org/chrome-devtools/
+		# and rejects some packages:
+		# Package fs-extra with version 11.3.0 was created 108h0m0s time ago. This is less than 1 week and so failed the audit.
+		sed -i /registry/d .npmrc
+		# Replace direct invocation of wasm rollup
+		sed -i 's\@rollup/wasm-node\rollup\' \
+		inspector_overlay/BUILD.gn \
+		front_end/models/live-metrics/web-vitals-injected/BUILD.gn \
+		front_end/Images/BUILD.gn \
+		front_end/panels/recorder/injected/BUILD.gn \
+		scripts/build/ninja/bundle.gni
+		popd
+		python third_party/devtools-frontend/src/scripts/deps/manage_node_deps.py
     fi
 
 	# adjust python interpreter version
@@ -641,7 +658,6 @@ src_prepare() {
 		third_party/googletest
 		third_party/highway
 		third_party/hunspell
-		third_party/iccjpeg
 		third_party/ink_stroke_modeler/src/ink_stroke_modeler
 		third_party/ink_stroke_modeler/src/ink_stroke_modeler/internal
 		third_party/ink/src/ink/brush
@@ -727,6 +743,7 @@ src_prepare() {
 		third_party/private_membership
 		third_party/private-join-and-compute
 		third_party/protobuf
+		third_party/protobuf/third_party/utf8_range
 		third_party/pthreadpool
 		third_party/puffin
 		third_party/pyjson5

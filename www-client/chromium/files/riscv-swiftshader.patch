@@ -1,7 +1,7 @@
-Index: chromium-134.0.6998.35/third_party/swiftshader/src/Reactor/BUILD.gn
+Index: chromium-135.0.7049.52/third_party/swiftshader/src/Reactor/BUILD.gn
 ===================================================================
---- chromium-134.0.6998.35.orig/third_party/swiftshader/src/Reactor/BUILD.gn
-+++ chromium-134.0.6998.35/third_party/swiftshader/src/Reactor/BUILD.gn
+--- chromium-135.0.7049.52.orig/third_party/swiftshader/src/Reactor/BUILD.gn
++++ chromium-135.0.7049.52/third_party/swiftshader/src/Reactor/BUILD.gn
 @@ -307,7 +307,7 @@ if (supports_subzero) {
  
  if (supports_llvm) {
@@ -11,10 +11,10 @@ Index: chromium-134.0.6998.35/third_party/swiftshader/src/Reactor/BUILD.gn
  
      deps = [
        ":swiftshader_reactor_base",
-Index: chromium-134.0.6998.35/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
+Index: chromium-135.0.7049.52/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
 ===================================================================
---- chromium-134.0.6998.35.orig/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
-+++ chromium-134.0.6998.35/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
+--- chromium-135.0.7049.52.orig/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
++++ chromium-135.0.7049.52/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
 @@ -778,6 +778,7 @@ swiftshader_llvm_source_set("swiftshader
      "llvm/lib/MC/MCContext.cpp",
      "llvm/lib/MC/MCDXContainerStreamer.cpp",
@@ -23,17 +23,4 @@ Index: chromium-134.0.6998.35/third_party/swiftshader/third_party/llvm-16.0/BUIL
      "llvm/lib/MC/MCDisassembler/MCRelocationInfo.cpp",
      "llvm/lib/MC/MCDwarf.cpp",
      "llvm/lib/MC/MCELFObjectTargetWriter.cpp",
-Index: chromium-134.0.6998.35/third_party/swiftshader/third_party/llvm-16.0/llvm/include/llvm/Support/AlignOf.h
-===================================================================
---- chromium-134.0.6998.35.orig/third_party/swiftshader/third_party/llvm-16.0/llvm/include/llvm/Support/AlignOf.h
-+++ chromium-134.0.6998.35/third_party/swiftshader/third_party/llvm-16.0/llvm/include/llvm/Support/AlignOf.h
-@@ -20,7 +20,7 @@ namespace llvm {
- /// A suitably aligned and sized character array member which can hold elements
- /// of any type.
- template <typename T, typename... Ts> struct AlignedCharArrayUnion {
--  alignas(Ts...) char buffer[std::max({sizeof(Ts)...})];
-+  alignas(std::max({std::size_t(1), alignof(T), alignof(Ts)...})) char buffer[std::max({std::size_t(1), sizeof(T), sizeof(Ts)...})];
- };
- 
- } // end namespace llvm
 
