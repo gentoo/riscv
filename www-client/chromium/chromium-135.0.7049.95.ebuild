@@ -15,12 +15,8 @@ EAPI=8
 # and need to get a release out quickly (less likely with `dev` in-tree).
 
 # Since m133 we are using CI-generated tarballs from
-# https://github.com/chromium-linux-tarballs/chromium-tarballs/ (uploaded to S3
-# and made available via https://chromium-tarballs.distfiles.gentoo.org/).
-
-# We do this because upstream tarballs weigh in at about 3.5x the size of our
-# new "Distro tarballs" and include binaries (etc) that are not useful for
-# downstream consumers (like distributions).
+# https://github.com/chromium-linux-tarballs/chromium-tarballs/ as we have
+# control over the generation and are able to avoid issues with upstream CI.
 
 GN_MIN_VER=0.2217
 # chromium-tools/get-chromium-toolchain-strings.py
@@ -47,9 +43,9 @@ inherit python-any-r1 readme.gentoo-r1 rust systemd toolchain-funcs virtualx xdg
 
 DESCRIPTION="Open-source version of Google Chrome web browser"
 HOMEPAGE="https://www.chromium.org/"
-PPC64_HASH="a85b64f07b489b8c6fdb13ecf79c16c56c560fc6"
+PPC64_HASH="2c25ddd2bbabaef094918fe15eb5de524d16949c"
 PATCH_V="${PV%%\.*}"
-SRC_URI="https://chromium-tarballs.distfiles.gentoo.org/${P}-linux.tar.xz
+SRC_URI="https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV}/chromium-${PV}-linux.tar.xz
 	!bundled-toolchain? (
 		https://gitlab.com/Matt.Jolly/chromium-patches/-/archive/${PATCH_V}/chromium-patches-${PATCH_V}.tar.bz2
 	)
@@ -60,7 +56,7 @@ SRC_URI="https://chromium-tarballs.distfiles.gentoo.org/${P}-linux.tar.xz
 			-> chromium-rust-toolchain-${RUST_SHORT_HASH}-${BUNDLED_CLANG_VER%-*}.tar.xz
 	)
 	test? (
-		https://chromium-tarballs.distfiles.gentoo.org/${P}-linux-testdata.tar.xz
+		https://github.com/chromium-linux-tarballs/chromium-tarballs/releases/download/${PV}/chromium-${PV}-linux-testdata.tar.xz
 		https://chromium-fonts.storage.googleapis.com/${TEST_FONT} -> chromium-testfonts-${TEST_FONT:0:10}.tar.gz
 	)
 	ppc64? (
@@ -72,8 +68,9 @@ LICENSE="BSD"
 SLOT="0/stable"
 # Dev exists mostly to give devs some breathing room for beta/stable releases;
 # it shouldn't be keyworded but adventurous users can select it.
+# Do _not_ drop stable keywords for amd64 on patch releases. aarch64 still needs to go through the stablereq process.
 if [[ ${SLOT} != "0/dev" ]]; then
-	KEYWORDS="amd64 ~arm64 ~riscv"
+	KEYWORDS="amd64 ~arm64 ~ppc64 ~riscv"
 fi
 
 IUSE_SYSTEM_LIBS="+system-harfbuzz +system-icu +system-png +system-zstd"
@@ -260,22 +257,25 @@ pre_build_checks() {
 	# Check build requirements: bugs #471810, #541816, #914220
 	# We're going to start doing maths here on the size of an unpacked source tarball,
 	# this should make updates easier as chromium continues to balloon in size.
-	local BASE_DISK=24
-	local EXTRA_DISK=1
-	local CHECKREQS_MEMORY="4G"
-	tc-is-cross-compiler && EXTRA_DISK=2
+	# xz -l /var/cache/distfiles/chromium-${PV}*.tar.xz
+	local base_disk=9 # Round up
+	use test && base_disk=$((base_disk + 5))
+	local extra_disk=1 # Always include a little extra space
+	local memory=4
+	tc-is-cross-compiler && extra_disk=$((extra_disk * 2))
 	if tc-is-lto || use pgo; then
-		CHECKREQS_MEMORY="9G"
-		tc-is-cross-compiler && EXTRA_DISK=4
-		use pgo && EXTRA_DISK=8
+		memory=$((memory * 2 + 1))
+		tc-is-cross-compiler && extra_disk=$((extra_disk * 2)) # Double the requirements
+		use pgo && extra_disk=$((extra_disk + 4))
 	fi
 	if is-flagq '-g?(gdb)?([1-9])'; then
 		if use custom-cflags; then
-			EXTRA_DISK=13
+			extra_disk=$((extra_disk + 5))
 		fi
-		CHECKREQS_MEMORY="16G"
+		memory=$((memory * 2))
 	fi
-	CHECKREQS_DISK_BUILD="$((BASE_DISK + EXTRA_DISK))G"
+	local CHECKREQS_MEMORY="${memory}G"
+	local CHECKREQS_DISK_BUILD="$((base_disk + extra_disk))G"
 	check-reqs_${EBUILD_PHASE_FUNC}
 }
 
@@ -412,6 +412,8 @@ src_prepare() {
 		"${FILESDIR}/chromium-134-bindgen-custom-toolchain.patch"
 		"${FILESDIR}/chromium-135-oauth2-client-switches.patch"
 		"${FILESDIR}/chromium-135-map_droppable-glibc.patch"
+		"${FILESDIR}/chromium-135-webrtc-pipewire.patch"
+		"${FILESDIR}/chromium-135-gperf.patch"
         "${FILESDIR}/riscv-swiftshader.patch"
         "${FILESDIR}/Debian-fix-rust-linking.patch"
         "${FILESDIR}/riscv-dav1d.patch"
@@ -423,7 +425,6 @@ src_prepare() {
         "${FILESDIR}/chromium-134-type-mismatch-error.patch"
         "${FILESDIR}/0001-chrome-runtime_api_delegate-add-riscv64-define.patch"
         "${FILESDIR}/0001-extensions-common-api-runtime.json-riscv64-support.patch"
-        "${FILESDIR}/fix-build-with-pipewire-1.3.82.patch"
 	)
 
 	if use bundled-toolchain; then
@@ -513,37 +514,38 @@ src_prepare() {
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	fi
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
-        
+
+
     # if this is riscv apply wasm-node fix to get it to compile clean
     if use riscv  ; then
        pushd third_party/node
             sed -i -e 's/@rollup/rollup/' -e "s/'wasm-node',//" node_modules.py
-            _rollup_ver="$(jq -r .dependencies.\"@rollup/wasm-node\" package.json)"     
-             jq ".dependencies.rollup=\"$_rollup_ver\"" package.json > package.json.new 
+            _rollup_ver="$(jq -r .dependencies.\"@rollup/wasm-node\" package.json)"
+             jq ".dependencies.rollup=\"$_rollup_ver\"" package.json > package.json.new
              mv package.json{.new,}
        popd
        third_party/node/update_npm_deps || die
        rm third_party/devtools-frontend/src/third_party/esbuild/esbuild || die
        cp -a ${FILESDIR}/esbuild third_party/devtools-frontend/src/third_party/esbuild/esbuild
 
-		pushd third_party/devtools-frontend/src
-		sed -i -e 's/@rollup/rollup/' -e "s/'wasm-node',//" scripts/devtools_paths.py
-		local _rollup_ver="$(jq -r .devDependencies.\"@rollup/wasm-node\" package.json)"
-		jq ".devDependencies.rollup=\"$_rollup_ver\" | .devDependencies.\"@rollup/rollup-linux-riscv64-gnu\"=\"$_rollup_ver\""  package.json > package.json.new
-		mv package.json{.new,}
-		# Chromium hosts a custom registry at https://npm.skia.org/chrome-devtools/
-		# and rejects some packages:
-		# Package fs-extra with version 11.3.0 was created 108h0m0s time ago. This is less than 1 week and so failed the audit.
-		sed -i /registry/d .npmrc
-		# Replace direct invocation of wasm rollup
-		sed -i 's\@rollup/wasm-node\rollup\' \
-		inspector_overlay/BUILD.gn \
-		front_end/models/live-metrics/web-vitals-injected/BUILD.gn \
-		front_end/Images/BUILD.gn \
-		front_end/panels/recorder/injected/BUILD.gn \
-		scripts/build/ninja/bundle.gni
-		popd
-		python third_party/devtools-frontend/src/scripts/deps/manage_node_deps.py
+        pushd third_party/devtools-frontend/src
+        sed -i -e 's/@rollup/rollup/' -e "s/'wasm-node',//" scripts/devtools_paths.py
+        local _rollup_ver="$(jq -r .devDependencies.\"@rollup/wasm-node\" package.json)"
+        jq ".devDependencies.rollup=\"$_rollup_ver\" | .devDependencies.\"@rollup/rollup-linux-riscv64-gnu\"=\"$_rollup_ver\""  package.json > package.json.new
+        mv package.json{.new,}
+        # Chromium hosts a custom registry at https://npm.skia.org/chrome-devtools/
+        # and rejects some packages:
+        # Package fs-extra with version 11.3.0 was created 108h0m0s time ago. This is less than 1 week and so failed the audit.
+        sed -i /registry/d .npmrc
+        # Replace direct invocation of wasm rollup
+        sed -i 's\@rollup/wasm-node\rollup\' \
+        inspector_overlay/BUILD.gn \
+        front_end/models/live-metrics/web-vitals-injected/BUILD.gn \
+        front_end/Images/BUILD.gn \
+        front_end/panels/recorder/injected/BUILD.gn \
+        scripts/build/ninja/bundle.gni
+        popd
+        python third_party/devtools-frontend/src/scripts/deps/manage_node_deps.py
     fi
 
 	# adjust python interpreter version
