@@ -1,0 +1,15 @@
+Index: chromium-136.0.7103.92/third_party/highway/BUILD.gn
+===================================================================
+--- chromium-136.0.7103.92.orig/third_party/highway/BUILD.gn
++++ chromium-136.0.7103.92/third_party/highway/BUILD.gn
+@@ -21,6 +21,9 @@ config("libhwy_external_config") {
+     # for absl::uint128 is 16.
+     defines += [ "HWY_BROKEN_TARGETS=HWY_ALL_SVE" ]
+   }
++  if (target_cpu == "riscv64") {
++    defines += [ "HWY_BROKEN_TARGETS=HWY_RVV" ]
++  }
+ }
+ 
+ source_set("libhwy") {
+
