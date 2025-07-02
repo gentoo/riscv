@@ -1,0 +1,29 @@
+From 1321e213034132e5489ad0b8375e6ae4b6a00c5e Mon Sep 17 00:00:00 2001
+From: kxxt <rsworktech@outlook.com>
+Date: Mon, 3 Mar 2025 16:29:06 +0100
+Subject: [PATCH] disable rvv in highway due to broken runtime dispatch
+
+Patch-Dir: src/electron/patches/chromium
+Patch-Filename: 0001-disable-rvv-in-highway-due-to-broken-runtime-dispatc.patch
+---
+ third_party/highway/BUILD.gn | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/third_party/highway/BUILD.gn b/third_party/highway/BUILD.gn
+index f3459d449ce5c..9462ccd4fd345 100644
+--- a/third_party/highway/BUILD.gn
++++ b/third_party/highway/BUILD.gn
+@@ -21,6 +21,10 @@ config("libhwy_external_config") {
+     # for absl::uint128 is 16.
+     defines += [ "HWY_BROKEN_TARGETS=HWY_ALL_SVE" ]
+   }
++  if (target_cpu == "riscv64") {
++    # Runtime dispatch is broken
++    defines += [ "HWY_BROKEN_TARGETS=HWY_RVV" ]
++  }
+ }
+ 
+ source_set("libhwy") {
+-- 
+2.48.1
+

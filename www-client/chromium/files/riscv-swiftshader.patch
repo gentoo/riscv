@@ -1,20 +1,23 @@
-Index: chromium-135.0.7049.52/third_party/swiftshader/src/Reactor/BUILD.gn
+ndex: chromium-136.0.7103.113/third_party/swiftshader/src/Reactor/BUILD.gn
 ===================================================================
---- chromium-135.0.7049.52.orig/third_party/swiftshader/src/Reactor/BUILD.gn
-+++ chromium-135.0.7049.52/third_party/swiftshader/src/Reactor/BUILD.gn
-@@ -307,7 +307,7 @@ if (supports_subzero) {
+--- chromium-136.0.7103.113.orig/third_party/swiftshader/src/Reactor/BUILD.gn
++++ chromium-136.0.7103.113/third_party/swiftshader/src/Reactor/BUILD.gn
+@@ -307,7 +307,11 @@ if (supports_subzero) {
  
  if (supports_llvm) {
    swiftshader_source_set("swiftshader_llvm_reactor") {
--    llvm_dir = "../../third_party/llvm-10.0"
-+    llvm_dir = "../../third_party/llvm-16.0"
++    if (current_cpu == "riscv64") {
++      llvm_dir = "../../third_party/llvm-16.0"
++    } else {
+     llvm_dir = "../../third_party/llvm-10.0"
++    }
  
      deps = [
        ":swiftshader_reactor_base",
-Index: chromium-135.0.7049.52/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
+Index: chromium-136.0.7103.113/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
 ===================================================================
---- chromium-135.0.7049.52.orig/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
-+++ chromium-135.0.7049.52/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
+--- chromium-136.0.7103.113.orig/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
++++ chromium-136.0.7103.113/third_party/swiftshader/third_party/llvm-16.0/BUILD.gn
 @@ -778,6 +778,7 @@ swiftshader_llvm_source_set("swiftshader
      "llvm/lib/MC/MCContext.cpp",
      "llvm/lib/MC/MCDXContainerStreamer.cpp",
