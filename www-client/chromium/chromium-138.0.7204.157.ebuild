@@ -78,7 +78,7 @@ SLOT="0/stable"
 # Dev exists mostly to give devs some breathing room for beta/stable releases;
 # it shouldn't be keyworded but adventurous users can select it.
 if [[ ${SLOT} != "0/dev" ]]; then
-	KEYWORDS="amd64 ~arm64 ~ppc64 ~riscv"
+	KEYWORDS="amd64 arm64 ~ppc64 ~riscv"
 fi
 
 IUSE_SYSTEM_LIBS="+system-harfbuzz +system-icu +system-png +system-zstd"
@@ -148,7 +148,7 @@ COMMON_SNAPSHOT_DEPEND="
 
 COMMON_DEPEND="
 	${COMMON_SNAPSHOT_DEPEND}
-    app-misc/jq:=
+	app-misc/jq:=
 	app-arch/bzip2:=
 	dev-libs/expat:=
 	net-misc/curl[ssl]
@@ -536,6 +536,7 @@ src_prepare() {
 		mkdir -p third_party/node/linux/node-linux-x64/bin || die
 	fi
 	ln -s "${EPREFIX}"/usr/bin/node third_party/node/linux/node-linux-x64/bin/node || die
+
     # if this is riscv apply wasm-node fix to get it to compile clean
     if use riscv  ; then
        pushd third_party/node
@@ -567,7 +568,6 @@ src_prepare() {
         popd
         python third_party/devtools-frontend/src/scripts/deps/manage_node_deps.py
     fi
-
 	# adjust python interpreter version
 	sed -i -e "s|\(^script_executable = \).*|\1\"${EPYTHON}\"|g" .gn || die
 
@@ -1238,6 +1238,12 @@ chromium_configure() {
 		# Allow building against system libraries in official builds
 		sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
 			tools/generate_shim_headers/generate_shim_headers.py || die
+        if use ppc64 || use riscv; then
+            myconf_gn+=( "is_cfi=false" ) # requires llvm-runtimes/compiler-rt-sanitizers[cfi]
+        else
+            myconf_gn+=( "is_cfi=${use_lto}" )
+        fi
+
 		# Don't add symbols to build
 		myconf_gn+=( "symbol_level=0" )
 	fi
@@ -1288,7 +1294,7 @@ chromium_compile() {
 	# Build mksnapshot and pax-mark it.
 	if use pax-kernel; then
 		local x
-		for x in mksnapshot v8_context_snapshot_generator; do
+		for x in mksnapshot v8_context_snapshot_generator code_cache_generator; do
 			if tc-is-cross-compiler; then
 				eninja -C out/Release "host/${x}"
 				pax-mark m "out/Release/host/${x}"
