@@ -1,0 +1,41 @@
+Index: chromium-146.0.7680.71/components/metrics/debug/metrics_internals_utils.cc
+===================================================================
+--- chromium-146.0.7680.71.orig/components/metrics/debug/metrics_internals_utils.cc
++++ chromium-146.0.7680.71/components/metrics/debug/metrics_internals_utils.cc
+@@ -76,6 +76,8 @@ std::string CpuArchitectureToString(
+       return "arm32";
+     case variations::Study::TRANSLATED_X86_64:
+       return "translated_x86_64";
++    case variations::Study::RISCV64:
++      return "riscv64";
+   }
+   NOTREACHED();
+ }
+Index: chromium-146.0.7680.71/components/variations/proto/study.proto
+===================================================================
+--- chromium-146.0.7680.71.orig/components/variations/proto/study.proto
++++ chromium-146.0.7680.71/components/variations/proto/study.proto
+@@ -294,6 +294,8 @@ message Study {
+     // A Mac-only value, indicating an x86-64 binary running on an arm64 host
+     // via "Rosetta 2" binary translation.
+     TRANSLATED_X86_64 = 4;
++
++    RISCV64 = 5;
+   }
+ 
+   // Possible states of the policy restriction filter.
+Index: chromium-146.0.7680.71/components/variations/service/variations_field_trial_creator.cc
+===================================================================
+--- chromium-146.0.7680.71.orig/components/variations/service/variations_field_trial_creator.cc
++++ chromium-146.0.7680.71/components/variations/service/variations_field_trial_creator.cc
+@@ -118,6 +118,9 @@ Study::CpuArchitecture GetCurrentCpuArch
+     }
+     return Study::X86_64;
+   }
++  if (process_arch == "RISCV_64") {
++    return Study::RISCV64;
++  }
+ #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
+   NOTREACHED();
+ #else
+

@@ -11,4 +11,3 @@ Index: chromium-137.0.7151.55/third_party/tflite/features.gni
  
    # Turns on TFLITE_WITH_RUY, using ruy as the gemm backend instead of gemmlowp.
    build_tflite_with_ruy = true
-
